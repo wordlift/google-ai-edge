@@ -38,12 +38,12 @@
                   console.log("Secret received. Prefix: ", secret.substring(0, 4));
                 }
 
-                const response = await fetch("https://api.wordlift.io/graphql/query", {
+                const response = await fetch("https://api.wordlift.io/graphql", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                         "Accept": "application/json",
-                        "Authorization": `Bearer ${secret}`
+                        "Authorization": `Key ${secret}`
                     },
                     body: JSON.stringify({ query })
                 });
