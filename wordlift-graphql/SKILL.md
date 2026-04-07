@@ -1,5 +1,5 @@
 ---
-name: wordlift-ai-expert
+name: wordlift-expert-v2
 description: Expert Knowledge Graph Explorer. Use for entity discovery (People, Places, Organizations), SEO performance, and schemaless data extraction.
 metadata:
   require-secret: true
