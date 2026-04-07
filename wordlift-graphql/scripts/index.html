@@ -13,17 +13,23 @@
             try {
                 console.log("Raw Skill Data: ", data);
                 
-                // --- INVINCIBLE PROTOCOL PARSING ---
-                // We use Regex to pull the query and question from the tagged text.
-                // This is much more robust than JSON for smaller models.
-                const queryMatch = data.match(/\[QUERY\](.*?)\[\/QUERY\]/s);
-                const questionMatch = data.match(/\[QUESTION\](.*?)\[\/QUESTION\]/s);
-
-                const query = queryMatch ? queryMatch[1].trim() : null;
-                const question = questionMatch ? questionMatch[1].trim() : "WordLift Query";
+                // --- SMART SEARCH FALLBACK ---
+                // If the model sends a plain string (without tags), we treat it as 
+                // a high-quality vector search for discovery.
+                let query, question;
+                if (!data.includes("[QUERY]")) {
+                    question = data.trim();
+                    query = `query { entitySearch(query: { search: { string: "${question.replace(/"/g, '\\"')}" } }, page:0, rows:20) { id: iri label: string(name: "rdfs:label") url: string(name: "schema:url") types: refs(name: "rdf:type") matchScore: float(name: "_:score") } }`;
+                } else {
+                    // --- TAGGED PROTOCOL PARSING ---
+                    const queryMatch = data.match(/\[QUERY\](.*?)\[\/QUERY\]/s);
+                    const questionMatch = data.match(/\[QUESTION\](.*?)\[\/QUESTION\]/s);
+                    query = queryMatch ? queryMatch[1].trim() : null;
+                    question = questionMatch ? questionMatch[1].trim() : "WordLift Query";
+                }
 
                 if (!query) {
-                    throw new Error("Could not find [QUERY] tags in the model output. Please ensure the model follows the instruction format.");
+                    throw new Error("Could not construct a valid query. Please provide a search term or a tagged [QUERY].");
                 }
 
                 if (!secret) {
