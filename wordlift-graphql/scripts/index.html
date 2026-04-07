@@ -33,7 +33,9 @@
                 }
 
                 if (!secret) {
-                    throw new Error("Missing WordLift API Key. To update your key, please DELETE this skill and re-import it via the URL to reset the secret prompt.");
+                    throw new Error("Missing WordLift API Key. To update your key, please DELETE the skill and re-import 'wordlift-ai-expert' via the URL to reset the secret prompt.");
+                } else {
+                  console.log("Secret received. Prefix: ", secret.substring(0, 4));
                 }
 
                 const response = await fetch("https://api.wordlift.io/graphql/query", {
