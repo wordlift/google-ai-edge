@@ -11,7 +11,13 @@
          */
         window['ai_edge_gallery_get_result'] = async (data, secret) => {
             try {
-                const { query, question } = JSON.parse(data);
+                console.log("Raw Skill Data: ", data);
+                
+                // Basic cleanup for Gemma-style JSON errors:
+                // Remove potential markdown fences and trailing garbage
+                const cleanData = data.trim().replace(/^```json\n?/, "").replace(/\n?```$/, "");
+                
+                const { query, question } = JSON.parse(cleanData);
 
                 if (!secret) throw new Error("Missing WordLift API Key. Please provide it in the prompt.");
                 if (!query) throw new Error("Missing GraphQL query parameter.");

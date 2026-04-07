@@ -1,61 +1,57 @@
 ---
 name: wordlift-graphql
-description: Use this skill to query the WordLift Knowledge Graph for SEO data, keyword performance, and article analytics.
+description: Query the WordLift Knowledge Graph for entities (People, Places, Organizations), products, and SEO performance.
 metadata:
   require-secret: true
-  require-secret-description: Enter your WordLift API key (found in WordLift dashboard under Settings -> API).
+  require-secret-description: Enter your WordLift API key (found in Settings -> API).
   homepage: https://wordlift.io
 ---
 
-# WordLift GraphQL Explorer
+# WordLift Knowledge Graph Expert
 
-This skill allows you to query your WordLift Knowledge Graph using natural language. It translates your questions into GraphQL queries and displays the results in an interactive table.
+Use this skill to query and explore the Knowledge Graph. It translates natural language into WordLift GraphQL queries.
 
-## Instructions
+### 📜 STRICT RULES FOR TOOL CALLS
+- **SINGLE LINE ONLY**: The `data` JSON must be a single line. NO NEWLINES.
+- **ESCAPING**: Escape all double quotes within the query string: `\"`.
+- **LIMIT**: Always specify `limit: 20` or `rows: 20`.
 
-Whenever the user asks a question about their SEO performance, keywords, pages, or entities in WordLift, call the `run_js` tool with the following exactly:
+---
 
-- **script name**: `index.html`
-- **data**: A JSON string with the following fields:
-  - `query`: The translated GraphQL query.
-  - `question`: The original natural language question.
+## 🛠 Query Patterns
 
-### Translation Guide
+### 1. Schemaless / Specific Entity Access
+Use `resource(iri: "...")` when you have an entity's IRI. This is the most robust way to get all properties (`string`, `int`, `ref`).
+- **Pattern**: `query { resource(iri: \"$IRI\") { name: string(name: \"rdfs:label\") description: string(name: \"schema:description\") types: refs(name: \"rdf:type\") } }`
 
-| If the user asks about... | Use this root field | Key predicates |
-| :--- | :--- | :--- |
-| Keywords, impressions, clicks | `keywords` | `seovoc:name`, `seovoc:impressions28Days`, `seovoc:clicks28Days`, `seovoc:ctr28Days` |
-| Page performance, URLs | `entities` | `seovoc:title`, `schema:url`, `seovoc:impressions28Days` |
-| Articles, authors | `articles` | `authorConstraint`, `seovoc:hasQuery` |
-| Semantic/Vector search | `entitySearch` | `search: { string: "..." }` |
+### 2. Search & Discovery
+Use `entitySearch` for general questions about "who", "what", or "where".
+- **Pattern**: `query { entitySearch(query: { search: { string: \"$SEARCH_TERM\" } }) { iri name: string(name: \"seovoc:name\") score: float(name: \"_:score\") } }`
 
-**Always apply a `limit: 20` to the root fields unless specified otherwise.**
+### 3. Entity Collections by Type
+Use `entities` with `typeConstraint` for categories.
+- **Pattern**: `query { entities(query: { typeConstraint: { in: [\"$TYPE_URL\"] } }, limit: 20) { title: string(name: \"seovoc:title\") url: string(name: \"schema:url\") } }`
 
-### Query Construction Workflow
-Before calling the tool, always follow these steps:
-1. **Identify Root**: Is it a generic `keywords` query, or a specific `entities` / `articles` / `products` constraint?
-2. **Consult Patterns**: Match the user's intent to one of the examples below.
-3. **Limit & Sort**: Always include `limit: 20` and an appropriate `sort` (usually `impressions28Days` DESC).
+---
 
-### Expanded Examples
+## 💡 Examples (Expert Usage)
 
-**Intent: Top keywords for a specific URL**
-`run_js(data: '{"query": "query { data(query: { urlConstraint: { in: [\"$URL\"] } }) { top_query: topN(name: \"seovoc:hasQuery\", sort: { field: \"seovoc:impressions3Months\", direction: DESC }, limit: 5) { name: string(name: \"seovoc:name\") impressions: int(name: \"seovoc:impressions3Months\") } } }"}')`
+- **User**: "Tell me about the person at http://data.wordlift.io/andrea"
+  - **Tool call**: `run_js(data: "{\"query\": \"query { resource(iri: \\\"http://data.wordlift.io/andrea\\\") { label: string(name: \\\"rdfs:label\\\") desc: string(name: \\\"schema:description\\\") } }\", \"question\": \" Andrea Volpini details\"}")`
 
-**Intent: Articles by a specific Author (Regex)**
-`run_js(data: '{"query": "query { articles(rows: 20, query: { authorConstraint: { regex: { pattern: \"^(entity/name)$\" } } }) { author: string(name: \"schema:author\") } }"}')`
+- **User**: "Which organizations are in Rome?"
+  - **Tool call**: `run_js(data: "{\"query\": \"query { entitySearch(query: { search: { string: \\\"organizations in Rome\\\" } }) { name: string(name: \\\"seovoc:name\\\") iri } }\", \"question\": \"Organizations in Rome\"}")`
 
-**Intent: High Impressions, Low Click-Through Rate (CTR)**
-`run_js(data: '{"query": "query { entities(sort: {field: \"seovoc:impressions28Days\", direction: DESC}, filter: {field: \"seovoc:ctr28Days\", operator: \"LT\", value: 0.02}, limit: 20) { title: string(name: \"seovoc:title\") ctr: float(name: \"seovoc:ctr28Days\") } }"}')`
+- **User**: "Show me the top performing keywords last month"
+  - **Tool call**: `run_js(data: "{\"query\": \"query { keywords(sort: {field: \\\"seovoc:impressions28Days\\\", direction: DESC}, limit: 20) { name: string(name: \\\"seovoc:name\\\") impressions: int(name: \\\"seovoc:impressions28Days\\\") } }\", \"question\": \"Top keywords this month\"}")`
 
-**Intent: Trending Keywords (New in last 7 days)**
-`run_js(data: '{"query": "query { keywords(sort: {field: \"seovoc:impressions7Days\", direction: DESC}, filter: {field: \"seovoc:age\", operator: \"LT\", value: 7}, limit: 10) { name: string(name: \"seovoc:name\") impressions: int(name: \"seovoc:impressions7Days\") } }"}')`
+### 🔎 Reference
+For complex filters, SEO metrics, and custom predicates, see **`assets/query-examples.md`**.
 
-**Intent: E-commerce Product Performance**
-`run_js(data: '{"query": "query { products(page: 0, rows: 20) { brand: string(name: \"schema:brand\") price: resource(name: \"schema:offers\") { price: string(name: \"schema:price\") } } }"}')`
+---
 
 ### Interpretation & Summary
-After the `run_js` tool returns `DATA_FOUND`:
-1. **Analyze**: Identify the winner (e.g. top keyword) and any surprising stats.
-2. **Summarize**: Write 2-3 sentences of expert SEO analysis based ONLY on the data.
-3. **Table**: Inform the user the full dataset is rendered in the interactive table below.
+After the tool returns `DATA_FOUND`:
+1. Analyze the JSON entity data. 
+2. Summarize the key facts conversationally.
+3. Inform the user the full dataset is rendered in the table below.

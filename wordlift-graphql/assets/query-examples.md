@@ -1,8 +1,48 @@
-# WordLift GraphQL — Full Query Reference
+## 🔎 Knowledge Graph Exploration (Schemaless)
 
-This reference contains the 30+ query patterns optimized for the WordLift GraphQL API.
+Use these patterns to explore any entity (Person, Organization, Place, etc.) by its IRI.
 
-## 🔎 Basic Querying
+### 1. Get All String Properties for an Entity
+```graphql
+query {
+  resource(iri: "https://data.wordlift.io/entity/andrea-volpini") {
+    label: string(name: "rdfs:label")
+    description: string(name: "schema:description")
+    jobTitle: string(name: "schema:jobTitle")
+    image: string(name: "schema:image")
+  }
+}
+```
+
+### 2. Find Related Entities (References)
+```graphql
+query {
+  resource(iri: "https://data.wordlift.io/entity/wordlift") {
+    name: string(name: "rdfs:label")
+    founder: ref(name: "schema:founder")
+    memberOf: refs(name: "schema:memberOf")
+  }
+}
+```
+
+### 3. Entity Search (Vector/Discovery)
+```graphql
+query {
+  entitySearch(
+    query: {
+      search: { string: "Artificial Intelligence experts in Rome" }
+    }
+  ) {
+    iri
+    name: string(name: "seovoc:name")
+    matchScore: float(name: "_:score")
+  }
+}
+```
+
+---
+
+## 🔎 SEO & Keywords Reference
 
 ### 1. Schemaless Querying
 ```graphql
