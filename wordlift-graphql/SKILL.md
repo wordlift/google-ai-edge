@@ -1,13 +1,12 @@
 ---
 name: wordlift-graphql
-description: Use this skill to query the WordLift Knowledge Graph for SEO data, keyword performance, and article analytics.
-metadata:
-  require-secret: true
-  require-secret-description: Enter your WordLift API key (found in WordLift dashboard under Settings -> API).
-  homepage: https://wordlift.io
+description: Query WordLift Knowledge Graph for SEO, keywords, and analytics.
+require-secret: true
+require-secret-description: Enter your WordLift API key from Settings -> API.
+homepage: https://wordlift.io
 ---
 
-# WordLift GraphQL Explorer
+# WordLift GraphQL Expert
 
 This skill allows you to query your WordLift Knowledge Graph using natural language. It translates your questions into GraphQL queries and displays the results in an interactive table.
 
