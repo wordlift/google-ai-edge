@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head></head>
+
 <body>
     <script>
-      /**
-       * AI Edge Gallery - WordLift GraphQL Logic Runner
-       */
-      window["ai_edge_gallery_get_result"] = async (data, secret) => {
-        try {
-          console.log("WordLift Skill Triggered. Secret present: ", !!secret);
-          const jsonData = JSON.parse(data);
-          const { query, question } = jsonData;
-                
+        /**
+         * AI Edge Gallery - WordLift GraphQL Logic Runner
+         * Triggers WordLift API fetch and prepares webview parameters.
+         */
+        window['ai_edge_gallery_get_result'] = async (data, secret) => {
+            try {
+                const { query, question } = JSON.parse(data);
+
                 if (!secret) throw new Error("Missing WordLift API Key. Please provide it in the prompt.");
                 if (!query) throw new Error("Missing GraphQL query parameter.");
 
@@ -33,7 +34,7 @@
                     });
                 }
 
-                // Prepare results for the webview. 
+                // Prepare results for the webview.
                 const resultStr = encodeURIComponent(JSON.stringify(result.data));
 
                 // Also return a small snippet of data to the LLM so it can summarize it.
@@ -55,4 +56,5 @@
         };
     </script>
 </body>
+
 </html>
