@@ -158,8 +158,8 @@
                 document.getElementById('resultTable').style.display = 'none';
                 document.getElementById('noData').style.display = 'block';
             } else {
-                // Auto-generate headers based on unique keys in all rows
-                const keys = [...new Set(list.flatMap(row => Object.keys(row)))];
+                // Auto-generate headers based on unique keys in all rows, excluding 'label'
+                const keys = [...new Set(list.flatMap(row => Object.keys(row)))].filter(k => k !== 'label');
                 
                 // Header rows
                 const headRow = document.getElementById('tableHead');
@@ -177,7 +177,10 @@
                         const td = document.createElement('td');
                         const val = row[key];
                         
-                        if (typeof val === 'number') {
+                        if (typeof val === 'string' && val.match(/^https?:\/\//i)) {
+                            td.className = 'val-primary';
+                            td.innerHTML = `<a href="${val}" target="_blank" style="color: var(--color-brand); text-decoration: none;">${val.length > 50 ? val.substring(0, 47) + '...' : val}</a>`;
+                        } else if (typeof val === 'number') {
                             td.className = 'metric';
                             td.innerText = (val % 1 === 0) ? val.toLocaleString() : val.toFixed(4);
                         } else {
