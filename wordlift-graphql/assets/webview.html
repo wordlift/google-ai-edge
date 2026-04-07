@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WordLift GraphQL Results</title>
+    <style>
+        :root {
+            /* Theme Colors - Inspired by WordLift/Clean SEO Aesthetics */
+            --color-bg: #FFFFFF;
+            --color-sub: #F9FAFB;
+            --color-brand: #0F6E56;
+            --color-brand-light: #E1F5EE;
+            --color-text: #111827;
+            --color-text-sub: #6B7280;
+            --color-border: #E5E7EB;
+            --radius: 12px;
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 16px;
+            background: var(--color-bg);
+            color: var(--color-text);
+            font-family: var(--font-sans);
+            font-size: 14px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .header-title {
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--color-text);
+        }
+
+        .pill {
+            background: var(--color-brand-light);
+            color: var(--color-brand);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            background: var(--color-bg);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background: var(--color-sub);
+            padding: 12px 14px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--color-text-sub);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--color-border);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 14px;
+            border-bottom: 1px solid var(--color-border);
+            white-space: nowrap;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .metric {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-weight: 500;
+            color: var(--color-brand);
+        }
+
+        .val-primary {
+            color: var(--color-text);
+            font-weight: 500;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: var(--color-text-sub);
+        }
+
+        /* Responsive Fixes */
+        @media screen and (max-width: 480px) {
+            body { padding: 12px; }
+            td, th { padding: 10px; font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-title" id="question">WordLift Results</div>
+            <div class="pill">Success</div>
+        </div>
+
+        <div class="table-wrap">
+            <table id="resultTable">
+                <thead><tr id="tableHead"></tr></thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+            <div id="noData" class="no-data" style="display: none;">No data found for this query.</div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * WordLift GraphQL Result Viewer
+         */
+        const params = new URLSearchParams(window.location.search);
+        const rawJson = params.get('data');
+        const questionText = params.get('q');
+
+        if (questionText) {
+            document.getElementById('question').innerText = questionText;
+        }
+
+        try {
+            if (!rawJson) throw new Error("No data received");
+            
+            const data = JSON.parse(decodeURIComponent(rawJson));
+            
+            // Auto-detect list field. Edge skills usually returned data[rootfield]
+            const firstKey = Object.keys(data)[0];
+            const list = Array.isArray(data[firstKey]) ? data[firstKey] : null;
+
+            if (!list || list.length === 0) {
+                document.getElementById('resultTable').style.display = 'none';
+                document.getElementById('noData').style.display = 'block';
+            } else {
+                // Auto-generate headers based on unique keys in all rows
+                const keys = [...new Set(list.flatMap(row => Object.keys(row)))];
+                
+                // Header rows
+                const headRow = document.getElementById('tableHead');
+                keys.forEach(key => {
+                    const th = document.createElement('th');
+                    th.innerText = key.replace(/([A-Z])/g, ' $1').trim(); // camelCase to Space
+                    headRow.appendChild(th);
+                });
+
+                // Body rows
+                const tbody = document.getElementById('tableBody');
+                list.forEach(row => {
+                    const tr = document.createElement('tr');
+                    keys.forEach(key => {
+                        const td = document.createElement('td');
+                        const val = row[key];
+                        
+                        if (typeof val === 'number') {
+                            td.className = 'metric';
+                            td.innerText = (val % 1 === 0) ? val.toLocaleString() : val.toFixed(4);
+                        } else {
+                            td.className = 'val-primary';
+                            td.innerText = val || '-';
+                        }
+                        tr.appendChild(td);
+                    });
+                    tbody.appendChild(tr);
+                });
+            }
+        } catch (e) {
+            console.error("Render Error:", e);
+            document.body.innerHTML = `
+                <div style="padding: 20px; color: var(--color-text-sub); text-align: center;">
+                    <p>Failed to load data table: ${e.message}</p>
+                </div>`;
+        }
+    </script>
+</body>
+</html>
