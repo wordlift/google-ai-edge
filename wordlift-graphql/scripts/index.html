@@ -13,14 +13,22 @@
             try {
                 console.log("Raw Skill Data: ", data);
                 
-                // Basic cleanup for Gemma-style JSON errors:
-                // Remove potential markdown fences and trailing garbage
-                const cleanData = data.trim().replace(/^```json\n?/, "").replace(/\n?```$/, "");
-                
-                const { query, question } = JSON.parse(cleanData);
+                // --- INVINCIBLE PROTOCOL PARSING ---
+                // We use Regex to pull the query and question from the tagged text.
+                // This is much more robust than JSON for smaller models.
+                const queryMatch = data.match(/\[QUERY\](.*?)\[\/QUERY\]/s);
+                const questionMatch = data.match(/\[QUESTION\](.*?)\[\/QUESTION\]/s);
 
-                if (!secret) throw new Error("Missing WordLift API Key. Please provide it in the prompt.");
-                if (!query) throw new Error("Missing GraphQL query parameter.");
+                const query = queryMatch ? queryMatch[1].trim() : null;
+                const question = questionMatch ? questionMatch[1].trim() : "WordLift Query";
+
+                if (!query) {
+                    throw new Error("Could not find [QUERY] tags in the model output. Please ensure the model follows the instruction format.");
+                }
+
+                if (!secret) {
+                    throw new Error("Missing WordLift API Key. To update your key, please DELETE this skill and re-import it via the URL to reset the secret prompt.");
+                }
 
                 const response = await fetch("https://api.wordlift.io/graphql/query", {
                     method: "POST",
@@ -31,6 +39,10 @@
                     },
                     body: JSON.stringify({ query })
                 });
+
+                if (response.status === 401) {
+                    throw new Error("Unauthorized (401). Your WordLift API Key is invalid or has expired. To update it, DELETE and RE-IMPORT this skill.");
+                }
 
                 const result = await response.json();
 

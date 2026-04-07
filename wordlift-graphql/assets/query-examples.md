@@ -415,8 +415,9 @@ query {
   entities(
     query: { containsVideo: { exists: true } }
     sort: { field: "seovoc:impressions28Days", direction: DESC }
-    limit: 5
+    page: 0, rows: 5
   ) {
+    id: iri
     title: string(name: "seovoc:title")
     impressions: int(name: "seovoc:impressions28Days")
   }

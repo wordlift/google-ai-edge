@@ -11,47 +11,52 @@ metadata:
 
 Use this skill to query and explore the Knowledge Graph. It translates natural language into WordLift GraphQL queries.
 
-### 📜 STRICT RULES FOR TOOL CALLS
-- **SINGLE LINE ONLY**: The `data` JSON must be a single line. NO NEWLINES.
-- **ESCAPING**: Escape all double quotes within the query string: `\"`.
-- **LIMIT**: Always specify `limit: 20` or `rows: 20`.
+### 🛡 INVINCIBLE PROTOCOL
+To execute a query, you MUST provide the tool call in this exact **Tagged Text** format:
+1. Start with `[QUERY]` and provide the raw GraphQL query.
+2. End with `[/QUERY]`
+3. Start with `[QUESTION]` and provide the original user question.
+4. End with `[/QUESTION]`
+
+**Example**:
+`run_js(data: "[QUERY] query { entities(page:0, rows:20) { id: iri label: string(name: \"rdfs:label\") } } [/QUERY] [QUESTION] List entities [/QUESTION]")`
 
 ---
 
-## 🛠 Query Patterns
+## 🛠 Query Patterns & Rules
 
-### 1. Schemaless / Specific Entity Access
-Use `resource(iri: "...")` when you have an entity's IRI. This is the most robust way to get all properties (`string`, `int`, `ref`).
-- **Pattern**: `query { resource(iri: \"$IRI\") { name: string(name: \"rdfs:label\") description: string(name: \"schema:description\") types: refs(name: \"rdf:type\") } }`
+### 1. Root Field Pagination
+- **NEVER use `limit`**.
+- **ALWAYS use `(page: 0, rows: 20)`** for root fields like `entities`, `products`, `keywords`, and `articles`.
 
-### 2. Search & Discovery
-Use `entitySearch` for general questions about "who", "what", or "where".
-- **Pattern**: `query { entitySearch(query: { search: { string: \"$SEARCH_TERM\" } }) { iri name: string(name: \"seovoc:name\") score: float(name: \"_:score\") } }`
+### 2. ID Mapping
+- **ALWAYS map `iri` to `id`** (e.g., `id: iri`).
 
-### 3. Entity Collections by Type
-Use `entities` with `typeConstraint` for categories.
-- **Pattern**: `query { entities(query: { typeConstraint: { in: [\"$TYPE_URL\"] } }, limit: 20) { title: string(name: \"seovoc:title\") url: string(name: \"schema:url\") } }`
+### 3. Schemaless / Specific Entity Access
+Use `resource(iri: "...")` for direct access to a known entity's properties.
+- **Pattern**: `query { resource(iri: \"$IRI\") { id: iri label: string(name: \"rdfs:label\") description: string(name: \"schema:description\") types: refs(name: \"rdf:type\") } }`
+
+### 4. Search & Discovery
+Use `entitySearch` for general questions.
+- **Pattern**: `query { entitySearch(query: { search: { string: \"$SEARCH\" } }, page: 0, rows: 20) { id: iri name: string(name: \"seovoc:name\") score: float(name: \"_:score\") } }`
 
 ---
 
-## 💡 Examples (Expert Usage)
+## 💡 Expert Examples
 
 - **User**: "Tell me about the person at http://data.wordlift.io/andrea"
-  - **Tool call**: `run_js(data: "{\"query\": \"query { resource(iri: \\\"http://data.wordlift.io/andrea\\\") { label: string(name: \\\"rdfs:label\\\") desc: string(name: \\\"schema:description\\\") } }\", \"question\": \" Andrea Volpini details\"}")`
+  - **Tool call**: `run_js(data: "[QUERY] query { resource(iri: \"http://data.wordlift.io/andrea\") { id: iri label: string(name: \"rdfs:label\") desc: string(name: \"schema:description\") } } [/QUERY] [QUESTION] Get Andrea Volpini details [/QUESTION]")`
 
 - **User**: "Which organizations are in Rome?"
-  - **Tool call**: `run_js(data: "{\"query\": \"query { entitySearch(query: { search: { string: \\\"organizations in Rome\\\" } }) { name: string(name: \\\"seovoc:name\\\") iri } }\", \"question\": \"Organizations in Rome\"}")`
+  - **Tool call**: `run_js(data: "[QUERY] query { entities(query: { typeConstraint: { in: [\"http://schema.org/Organization\"] } }, page: 0, rows: 20) { id: iri name: string(name: \"seovoc:name\") } } [/QUERY] [QUESTION] Organizations in Rome [/QUESTION]")`
 
-- **User**: "Show me the top performing keywords last month"
-  - **Tool call**: `run_js(data: "{\"query\": \"query { keywords(sort: {field: \\\"seovoc:impressions28Days\\\", direction: DESC}, limit: 20) { name: string(name: \\\"seovoc:name\\\") impressions: int(name: \\\"seovoc:impressions28Days\\\") } }\", \"question\": \"Top keywords this month\"}")`
-
-### 🔎 Reference
-For complex filters, SEO metrics, and custom predicates, see **`assets/query-examples.md`**.
+- **User**: "Show me my top 10 keywords by clicks"
+  - **Tool call**: `run_js(data: "[QUERY] query { keywords(sort: {field: \"seovoc:clicks28Days\", direction: DESC}, page: 0, rows: 10) { id: iri keyword: string(name: \"seovoc:name\") clicks: int(name: \"seovoc:clicks28Days\") } } [/QUERY] [QUESTION] Top keywords by clicks [/QUESTION]")`
 
 ---
 
 ### Interpretation & Summary
 After the tool returns `DATA_FOUND`:
-1. Analyze the JSON entity data. 
+1. Analyze the JSON entity data.
 2. Summarize the key facts conversationally.
 3. Inform the user the full dataset is rendered in the table below.
