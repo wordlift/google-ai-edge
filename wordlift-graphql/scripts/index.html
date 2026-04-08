@@ -16,16 +16,20 @@
                 // --- SMART SEARCH FALLBACK ---
                 // If the model sends a plain string (without tags), we treat it as 
                 // a high-quality vector search for discovery.
-                let query, question;
+                // --- TAGGED PROTOCOL PARSING ---
+                const queryMatch = data.match(/\[QUERY\](.*?)\[\/QUERY\]/s);
+                const questionMatch = data.match(/\[QUESTION\](.*?)\[\/QUESTION\]/s);
+                const summaryMatch = data.match(/\[SUMMARY\](.*?)\[\/SUMMARY\]/s);
+                
+                let query, question, summary;
+                
                 if (!data.includes("[QUERY]")) {
                     question = data.trim();
-                    query = `query { entitySearch(query: { search: { string: "${question.replace(/"/g, '\\"')}" } }, page:0, rows:20) { id: iri label: string(name: "rdfs:label") url: string(name: "schema:url") types: refs(name: "rdf:type") matchScore: float(name: "_:score") } }`;
+                    query = `query { entitySearch(query: { search: { string: "${question.replace(/"/g, '\\"')}" } }, page:0, rows:20) { id: iri label: string(name: "rdfs:label") name: string(name: "schema:name") headline: string(name: "schema:headline") url: string(name: "schema:url") mainEntityOfPage: string(name: "schema:mainEntityOfPage") types: refs(name: "rdf:type") matchScore: float(name: "_:score") } }`;
                 } else {
-                    // --- TAGGED PROTOCOL PARSING ---
-                    const queryMatch = data.match(/\[QUERY\](.*?)\[\/QUERY\]/s);
-                    const questionMatch = data.match(/\[QUESTION\](.*?)\[\/QUESTION\]/s);
                     query = queryMatch ? queryMatch[1].trim() : null;
                     question = questionMatch ? questionMatch[1].trim() : "WordLift Query";
+                    summary = summaryMatch ? summaryMatch[1].trim() : null;
                 }
 
                 if (!query) {
@@ -34,8 +38,6 @@
 
                 if (!secret) {
                     throw new Error("Missing WordLift API Key. To update your key, please DELETE the skill and re-import 'wordlift-ai-expert' via the URL to reset the secret prompt.");
-                } else {
-                  console.log("Secret received. Prefix: ", secret.substring(0, 4));
                 }
 
                 const response = await fetch("https://api.wordlift.io/graphql", {
@@ -49,7 +51,7 @@
                 });
 
                 if (response.status === 401) {
-                    throw new Error("Unauthorized (401). Your WordLift API Key is invalid or has expired. To update it, DELETE and RE-IMPORT this skill.");
+                    throw new Error("Unauthorized (401). Your WordLift API Key is invalid or has expired.");
                 }
 
                 const result = await response.json();
@@ -62,6 +64,7 @@
 
                 // Prepare results for the webview.
                 const resultStr = encodeURIComponent(JSON.stringify(result.data));
+                const encodedSummary = summary ? `&summary=${encodeURIComponent(summary)}` : '';
 
                 // Also return a small snippet of data to the LLM so it can summarize it.
                 const firstKey = result.data ? Object.keys(result.data)[0] : null;
@@ -70,7 +73,8 @@
                 return JSON.stringify({
                     result: `DATA_FOUND: ${llmSnippet}`,
                     webview: {
-                        url: `../assets/webview.html?data=${resultStr}&q=${encodeURIComponent(question)}`,
+                        // Added v=4 cache buster and summary support
+                        url: `../assets/webview.html?v=4&data=${resultStr}&q=${encodeURIComponent(question)}${encodedSummary}`,
                         aspectRatio: 1.2
                     }
                 });

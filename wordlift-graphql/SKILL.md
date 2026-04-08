@@ -34,23 +34,15 @@ Use this when the user asks for "boosted reasoning," "deep exploration," or "rel
 
 ---
 
-## 🛠 CORE PROTOCOL & DATA STRUCTURE
-For all queries, try to include the **Identity Block** to ensure the best UI experience:
-
-```graphql
-id: iri
-label: string(name: "rdfs:label")
-name: string(name: "schema:name")     # For Organizations/People
-headline: string(name: "schema:headline") # For Articles/Posts
-url: string(name: "schema:url")
-mainEntityOfPage: string(name: "schema:mainEntityOfPage")
-```
+## 🧪 ADVANCED UI PROTOCOL (TAGGED TEXT)
+To trigger the premium visualization with an executive summary:
+`run_js(script_name: "index", data: "[QUERY] query { ... } [/QUERY] [SUMMARY] My synthesized summary here... [/SUMMARY] [QUESTION] What are the findings? [/QUESTION]")`
 
 ### Principles
 1.  **PAGINATION**: Always use `(page: 0, rows: 20)`.
 2.  **ID MAPPING**: Always map `iri` to `id`.
-3.  **FALLBACKS**: If `label` is missing, the webview uses `headline` or `name`. Ask for all three if unsure.
-4.  **SUMMARY FIRST**: Provide a 2-3 sentence summary before pointing to the data.
+3.  **FALLBACKS**: If `label` is missing, the webview uses `headline` or `name`. 
+4.  **SUMMARY TAG**: Use the `[SUMMARY]` tag within `run_js` to display your findings in the top "Executive Summary" card.
 
 ---
 
