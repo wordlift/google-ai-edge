@@ -1,5 +1,5 @@
 ---
-name: wordlift-expert-v7
+name: wordlift-expert-v8
 description: Expert Knowledge Graph Explorer. Supports Quick Search and Advanced Reasoning (RLM-on-KG) for deep-dive entity discovery.
 metadata:
   require-secret: true
@@ -35,14 +35,14 @@ Use this when the user asks for "boosted reasoning," "deep exploration," or "rel
 ---
 
 ## 🧪 ADVANCED UI PROTOCOL (TAGGED TEXT)
-To trigger the premium visualization with an executive summary:
-`run_js(script_name: "index", data: "[QUERY] query { ... } [/QUERY] [SUMMARY] My synthesized summary here... [/SUMMARY] [QUESTION] What are the findings? [/QUESTION]")`
+To trigger the premium visualization:
+`run_js(script_name: "index", data: "[QUERY] query { ... } [/QUERY] [SUMMARY] ... [/SUMMARY] [QUESTION] ... [/QUESTION]")`
 
 ### Principles
 1.  **PAGINATION**: Always use `(page: 0, rows: 20)`.
 2.  **ID MAPPING**: Always map `iri` to `id`.
-3.  **FALLBACKS**: If `label` is missing, the webview uses `headline` or `name`. 
-4.  **SUMMARY TAG**: Use the `[SUMMARY]` tag within `run_js` to display your findings in the top "Executive Summary" card.
+3.  **IDENTITY MERGE**: The UI merges `label`, `name`, and `headline` into a single **Entity** column.
+4.  **SUMMARY TAG**: Use `[SUMMARY]` to display findings in the top "Executive Summary" card.
 
 ---
 
@@ -50,4 +50,4 @@ To trigger the premium visualization with an executive summary:
 After the tool returns `DATA_FOUND`:
 1.  **Analyze**: Look for overlaps between discovery phases.
 2.  **Synthesize**: Explain *how* entities are tied together.
-3.  **Visualize**: The `webview.html` will automatically render your summary if passed in the URL: `webview.html?summary=$ENCODED_SUMMARY&data=$ENCODED_DATA`.
+3.  **Visualize**: The `webview.html` will automatically render your summary from LocalStorage.
