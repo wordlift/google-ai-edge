@@ -1,42 +1,58 @@
 # WordLift GraphQL — Full Query Reference
 
-This reference contains the latest, validated query patterns for the WordLift GraphQL API, including advanced RLM-on-KG (Recursive Language Model on Knowledge Graph) multi-hop navigation.
+This reference contains validated query patterns for the WordLift GraphQL API, optimized for CreativeWorks (Articles) and Entities (People, Orgs, Places).
+
+---
+
+## 🏗 THE ROBUST IDENTITY BLOCK
+For the best UI experience, always include these fields in your selection sets:
+```graphql
+id: iri
+label: string(name: "rdfs:label")
+name: string(name: "schema:name")
+headline: string(name: "schema:headline")
+url: string(name: "schema:url")
+mainEntityOfPage: string(name: "schema:mainEntityOfPage")
+```
 
 ---
 
 ## 🧠 RLM-on-KG Patterns (Multi-hop)
 
-### 1. Neighborhood Expansion (Advanced Reasoning)
-Use this to find entities connected to a specific topic via shared mentions or properties.
+### 1. Neighborhood Expansion
+Find entities connected to a topic with full SEO metadata expansion.
 ```graphql
 query {
   entitySearch(query: { search: { string: "Andrea Volpini" } }, page: 0, rows: 3) {
     id: iri
     label: string(name: "rdfs:label")
-    # Expand neighborhood of each found entity
+    name: string(name: "schema:name")
+    headline: string(name: "schema:headline")
+    url: string(name: "schema:url")
+    # Expand neighborhood
     neighbors: refs(name: "schema:about") {
-      neighborId: iri
-      neighborLabel: string(name: "rdfs:label")
-      neighborDesc: string(name: "schema:description")
+      id: iri
+      label: string(name: "rdfs:label")
+      name: string(name: "schema:name")
+      headline: string(name: "schema:headline")
     }
   }
 }
 ```
 
-### 2. Multi-hop Relationship Drill-down
-Deep exploration of a specific entity's context and its related keywords.
+### 2. Article Context Exploration
+Retrieve an article and its related semantic concepts.
 ```graphql
 query {
   resource(iri: "$IRI") {
     id: iri
-    label: string(name: "rdfs:label")
+    headline: string(name: "schema:headline")
     description: string(name: "schema:description")
-    # Hop 1: Related entities
+    url: string(name: "schema:url")
     related: refs(name: "schema:about") {
       id: iri
       label: string(name: "rdfs:label")
-      # Hop 2: Keywords of related entities
-      keywords: strings(name: "seovoc:keywords")
+      types: refs(name: "rdf:type")
     }
   }
 }
@@ -46,35 +62,17 @@ query {
 
 ## ⚡️ Quick Search & Discovery
 
-### 3. Basic Working Pattern (Recommended)
-This is the most reliable base for general discovery.
+### 3. General Discovery Pattern
 ```graphql
 query {
-  entitySearch(query: { search: { string: "Artificial Intelligence experts" } }, page: 0, rows: 20) {
+  entitySearch(query: { search: { string: "AI strategy" } }, page: 0, rows: 10) {
     id: iri
-    matchScore: float(name: "_:score")
     label: string(name: "rdfs:label")
+    name: string(name: "schema:name")
+    headline: string(name: "schema:headline")
     url: string(name: "schema:url")
-    types: refs(name: "rdf:type")
-  }
-}
-```
-
-### 4. Nested SEO Insights
-Shows the top performing search queries associated with the entities.
-```graphql
-query {
-  entitySearch(query: { search: { string: "SEO strategy articles" } }, page: 0, rows: 20) {
-    id: iri
-    label: string(name: "rdfs:label")
-    topKeywords: topN(
-      name: "seovoc:hasQuery"
-      sort: { field: "seovoc:impressions28Days", direction: DESC }
-      page: 0, rows: 3
-    ) {
-      keyword: string(name: "seovoc:name")
-      impressions: int(name: "seovoc:impressions28Days")
-    }
+    mainEntityOfPage: string(name: "schema:mainEntityOfPage")
+    matchScore: float(name: "_:score")
   }
 }
 ```
@@ -83,10 +81,11 @@ query {
 
 ## ⚙️ Data Analysis Rules
 
-### 5. Match Score Interpretation
+### 4. Match Score Interpretation
 - **Score > 0.52**: Strong semantic match.
 - **Score < 0.48**: Likely noise or irrelevant.
 
-### ⚙️ Pagination & ID Standard
-- **ALWAYS** use `(page: 0, rows: X)` for root fields.
-- **ALWAYS** map `iri` to `id`.
+### 5. Type-Specific Fallbacks
+- **CreativeWorks (Articles)**: Use `headline`.
+- **Entities (People/Orgs)**: Use `name` or `label`.
+- **Linking**: Always map `iri` to `id` for automatic table linking.

@@ -261,15 +261,25 @@
                 const tbody = document.getElementById('tableBody');
                 list.forEach(row => {
                     const tr = document.createElement('tr');
+                    
+                    // Identify this row's display name for potential use
+                    const displayName = row.label || row.headline || row.name || row.id?.split('/').pop() || '-';
+
                     keys.forEach(key => {
                         const td = document.createElement('td');
                         const val = row[key];
                         
-                        if (typeof val === 'string' && val.match(/^https?:\/\//i)) {
-                            td.innerHTML = `<a href="${val}" target="_blank" class="pill pill-iri">${val.split('/').pop().substring(0, 20)}...</a>`;
-                        } else if (typeof val === 'number') {
+                        // Smart IRI Linking (id field mapped from iri)
+                        if (key === 'id' || (typeof val === 'string' && val.match(/^https?:\/\//i))) {
+                             const shortVal = val.split('/').pop().substring(0, 20);
+                             td.innerHTML = `<a href="${val}" target="_blank" class="pill pill-iri" title="${val}">${shortVal}...</a>`;
+                        } 
+                        // Number formatting
+                        else if (typeof val === 'number') {
                             td.innerHTML = `<span class="metric-val pill-number">${val.toLocaleString()}</span>`;
-                        } else {
+                        } 
+                        // String / Fallback
+                        else {
                             td.innerHTML = `<span class="pill-string">${val || '-'}</span>`;
                         }
                         tr.appendChild(td);
