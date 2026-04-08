@@ -198,7 +198,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="header-title">KG Explorer v5</div>
+            <div class="header-title">KG Explorer v6</div>
             <div class="status-pill">Connected</div>
         </div>
 
@@ -240,8 +240,13 @@
         }
 
         try {
-            if (!rawJson) throw new Error("No data received");
-            const data = JSON.parse(decodeURIComponent(rawJson));
+            // Priority 1: URL data (for small payloads)
+            // Priority 2: localStorage (for large payloads / URI Too Long fix)
+            const rawJson = params.get('data') || localStorage.getItem('wl_explorer_data');
+            
+            if (!rawJson) throw new Error("No data found in URL or LocalStorage");
+            
+            const data = JSON.parse(decodeURIComponent(rawJson).startsWith('{') ? decodeURIComponent(rawJson) : rawJson);
             
             const firstKey = Object.keys(data)[0];
             const list = Array.isArray(data[firstKey]) ? data[firstKey] : (typeof data === 'object' ? [data] : null);

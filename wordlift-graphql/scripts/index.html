@@ -63,7 +63,16 @@
                 }
 
                 // Prepare results for the webview.
-                const resultStr = encodeURIComponent(JSON.stringify(result.data));
+                const resultData = JSON.stringify(result.data);
+                const resultStr = encodeURIComponent(resultData);
+                
+                // STORAGE FALLBACK: For long URIs, we use localStorage
+                try {
+                    localStorage.setItem('wl_explorer_data', resultData);
+                } catch (e) {
+                    console.warn("LocalStorage save failed:", e);
+                }
+
                 const encodedSummary = summary ? `&summary=${encodeURIComponent(summary)}` : '';
 
                 // Also return a small snippet of data to the LLM so it can summarize it.
@@ -73,8 +82,8 @@
                 return JSON.stringify({
                     result: `DATA_FOUND: ${llmSnippet}`,
                     webview: {
-                        // Added v=5 cache buster and summary support
-                        url: `../assets/webview.html?v=5&data=${resultStr}&q=${encodeURIComponent(question)}${encodedSummary}`,
+                        // Added v=6 cache buster and data is now also in localStorage
+                        url: `../assets/webview.html?v=6&q=${encodeURIComponent(question)}${encodedSummary}`,
                         aspectRatio: 1.2
                     }
                 });
