@@ -3,66 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WordLift GraphQL Results</title>
+    <title>WordLift Knowledge Graph Explorer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* Theme Colors - Inspired by WordLift/Clean SEO Aesthetics */
-            --color-bg: #FFFFFF;
-            --color-sub: #F9FAFB;
+            /* Theme Colors - Premium WordLift Aesthetics */
+            --color-bg: #F8FAFC;
+            --color-surface: #FFFFFF;
             --color-brand: #0F6E56;
-            --color-brand-light: #E1F5EE;
-            --color-text: #111827;
-            --color-text-sub: #6B7280;
-            --color-border: #E5E7EB;
-            --radius: 12px;
-            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --color-brand-soft: rgba(15, 110, 86, 0.08);
+            --color-text: #1E293B;
+            --color-text-sub: #64748B;
+            --color-border: #E2E8F0;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --font-sans: 'Inter', -apple-system, system-ui, sans-serif;
         }
 
         body {
             margin: 0;
-            padding: 16px;
+            padding: 24px;
             background: var(--color-bg);
             color: var(--color-text);
             font-family: var(--font-sans);
-            font-size: 14px;
+            line-height: 1.5;
             -webkit-font-smoothing: antialiased;
         }
 
         .container {
-            max-width: 100%;
+            max-width: 1000px;
             margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
         }
 
+        /* Header Styling */
         .header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 20px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--color-border);
         }
 
         .header-title {
-            font-weight: 600;
-            font-size: 15px;
+            font-weight: 700;
+            font-size: 20px;
+            letter-spacing: -0.02em;
             color: var(--color-text);
         }
 
-        .pill {
-            background: var(--color-brand-light);
+        .status-pill {
+            background: var(--color-brand-soft);
             color: var(--color-brand);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 11px;
+            padding: 6px 12px;
+            border-radius: 100px;
+            font-size: 12px;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-pill::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--color-brand);
+            border-radius: 50%;
+        }
+
+        /* Summary Card */
+        .summary-card {
+            background: var(--color-surface);
+            padding: 24px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow);
+        }
+
+        .summary-label {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--color-brand);
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .summary-text {
+            font-size: 15px;
+            line-height: 1.6;
+            color: var(--color-text);
+            margin: 0;
+        }
+
+        /* Table Styling */
+        .card {
+            background: var(--color-surface);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--color-border);
+            background: #fff;
+        }
+
+        .table-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--color-text-sub);
         }
 
         .table-wrap {
             overflow-x: auto;
-            background: var(--color-bg);
-            border: 1px solid var(--color-border);
-            border-radius: var(--radius);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
         table {
@@ -72,10 +133,10 @@
         }
 
         th {
-            background: var(--color-sub);
-            padding: 12px 14px;
-            font-size: 12px;
-            font-weight: 500;
+            background: #FAFBFC;
+            padding: 14px 24px;
+            font-size: 11px;
+            font-weight: 700;
             color: var(--color-text-sub);
             text-transform: uppercase;
             letter-spacing: 0.05em;
@@ -84,92 +145,119 @@
         }
 
         td {
-            padding: 14px;
+            padding: 16px 24px;
             border-bottom: 1px solid var(--color-border);
-            white-space: nowrap;
+            font-size: 14px;
         }
 
         tr:last-child td {
             border-bottom: none;
         }
 
-        .metric {
-            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-            font-weight: 500;
-            color: var(--color-brand);
+        tr:hover td {
+            background: #F8FAFC;
         }
 
-        .val-primary {
-            color: var(--color-text);
+        /* Data Type Pills */
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 12px;
             font-weight: 500;
+        }
+
+        .pill-number { background: #EEF2FF; color: #4338CA; }
+        .pill-string { background: #F0FDF4; color: #15803D; }
+        .pill-iri { background: #FFF7ED; color: #C2410C; text-decoration: none; }
+
+        .metric-val {
+            font-family: ui-monospace, SFMono-Regular, monospace;
+            font-weight: 600;
         }
 
         .no-data {
+            padding: 64px;
             text-align: center;
-            padding: 40px;
             color: var(--color-text-sub);
         }
 
-        /* Responsive Fixes */
-        @media screen and (max-width: 480px) {
-            body { padding: 12px; }
-            td, th { padding: 10px; font-size: 13px; }
+        /* Transitions */
+        .summary-card, .card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        @media (max-width: 640px) {
+            body { padding: 16px; }
+            .header-title { font-size: 18px; }
+            td, th { padding: 12px 16px; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <div class="header-title" id="question">WordLift Results</div>
-            <div class="pill">Success</div>
+            <div class="header-title">KG Explorer</div>
+            <div class="status-pill">Connected</div>
         </div>
 
-        <div class="table-wrap">
-            <table id="resultTable">
-                <thead><tr id="tableHead"></tr></thead>
-                <tbody id="tableBody"></tbody>
-            </table>
-            <div id="noData" class="no-data" style="display: none;">No data found for this query.</div>
+        <div id="summaryCard" class="summary-card" style="display: none;">
+            <span class="summary-label">Executive Summary</span>
+            <p id="summaryText" class="summary-text"></p>
+        </div>
+
+        <div class="card">
+            <div class="table-header">
+                <div class="table-title" id="queryTitle">Results</div>
+            </div>
+            <div class="table-wrap">
+                <table id="resultTable">
+                    <thead><tr id="tableHead"></tr></thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+                <div id="noData" class="no-data" style="display: none;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 16px; opacity: 0.5;">
+                        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                    </svg>
+                    <p>No entities matched your search criteria.</p>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        /**
-         * WordLift GraphQL Result Viewer
-         */
         const params = new URLSearchParams(window.location.search);
         const rawJson = params.get('data');
-        const questionText = params.get('q');
+        const summary = params.get('summary');
+        const qTitle = params.get('q');
 
-        if (questionText) {
-            document.getElementById('question').innerText = questionText;
+        if (qTitle) document.getElementById('queryTitle').innerText = qTitle;
+        
+        if (summary) {
+            document.getElementById('summaryCard').style.display = 'block';
+            document.getElementById('summaryText').innerText = decodeURIComponent(summary);
         }
 
         try {
             if (!rawJson) throw new Error("No data received");
-            
             const data = JSON.parse(decodeURIComponent(rawJson));
             
-            // Auto-detect list field. Edge skills usually returned data[rootfield]
             const firstKey = Object.keys(data)[0];
-            const list = Array.isArray(data[firstKey]) ? data[firstKey] : null;
+            const list = Array.isArray(data[firstKey]) ? data[firstKey] : (typeof data === 'object' ? [data] : null);
 
             if (!list || list.length === 0) {
                 document.getElementById('resultTable').style.display = 'none';
                 document.getElementById('noData').style.display = 'block';
             } else {
-                // Auto-generate headers based on unique keys in all rows, excluding 'label'
-                const keys = [...new Set(list.flatMap(row => Object.keys(row)))].filter(k => k !== 'label');
-                
-                // Header rows
+                const keys = [...new Set(list.flatMap(row => Object.keys(row)))];
                 const headRow = document.getElementById('tableHead');
                 keys.forEach(key => {
                     const th = document.createElement('th');
-                    th.innerText = key.replace(/([A-Z])/g, ' $1').trim(); // camelCase to Space
+                    th.innerText = key.replace(/([A-Z])/g, ' $1').trim();
                     headRow.appendChild(th);
                 });
 
-                // Body rows
                 const tbody = document.getElementById('tableBody');
                 list.forEach(row => {
                     const tr = document.createElement('tr');
@@ -178,14 +266,11 @@
                         const val = row[key];
                         
                         if (typeof val === 'string' && val.match(/^https?:\/\//i)) {
-                            td.className = 'val-primary';
-                            td.innerHTML = `<a href="${val}" target="_blank" style="color: var(--color-brand); text-decoration: none;">${val.length > 50 ? val.substring(0, 47) + '...' : val}</a>`;
+                            td.innerHTML = `<a href="${val}" target="_blank" class="pill pill-iri">${val.split('/').pop().substring(0, 20)}...</a>`;
                         } else if (typeof val === 'number') {
-                            td.className = 'metric';
-                            td.innerText = (val % 1 === 0) ? val.toLocaleString() : val.toFixed(4);
+                            td.innerHTML = `<span class="metric-val pill-number">${val.toLocaleString()}</span>`;
                         } else {
-                            td.className = 'val-primary';
-                            td.innerText = val || '-';
+                            td.innerHTML = `<span class="pill-string">${val || '-'}</span>`;
                         }
                         tr.appendChild(td);
                     });
@@ -193,11 +278,9 @@
                 });
             }
         } catch (e) {
-            console.error("Render Error:", e);
-            document.body.innerHTML = `
-                <div style="padding: 20px; color: var(--color-text-sub); text-align: center;">
-                    <p>Failed to load data table: ${e.message}</p>
-                </div>`;
+            console.error(e);
+            document.getElementById('noData').style.display = 'block';
+            document.getElementById('noData').innerText = "Parse error: " + e.message;
         }
     </script>
 </body>

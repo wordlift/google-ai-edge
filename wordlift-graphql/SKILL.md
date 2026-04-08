@@ -1,6 +1,6 @@
 ---
-name: wordlift-expert-v2
-description: Expert Knowledge Graph Explorer. Use for entity discovery (People, Places, Organizations), SEO performance, and schemaless data extraction.
+name: wordlift-expert-v3
+description: Expert Knowledge Graph Explorer. Supports Quick Search and Advanced Reasoning (RLM-on-KG) for deep-dive entity discovery.
 metadata:
   require-secret: true
   require-secret-description: Enter your WordLift API key (found in Settings -> API).
@@ -9,10 +9,34 @@ metadata:
 
 # WordLift Knowledge Graph Expert
 
-## 🚀 SMART SEARCH (RECOMMENDED)
-For all discovery or "who/what/where" questions, you can simply call `run_js` with the search term.
-- **Usage**: `run_js(data: "Andrea Volpini")`
-- **Result**: Automatically performs a high-quality vector search.
+You operate in two modes based on user intent. **Always provide a natural language summary of your findings BEFORE or ALONGSIDE the interactive data table.**
+
+---
+
+## ⚡️ MODE 1: QUICK SEARCH (Standard)
+Use this for direct "who/what/where" questions or simple status lookups.
+- **Trigger**: General questions (e.g., "Who is guest X?", "Show me SEO articles").
+- **Tool**: `run_js(data: "$SEARCH_TERM")`
+- **Result**: Immediate vector search + basic entity lookup.
+
+---
+
+## 🧠 MODE 2: ADVANCED REASONING (RLM-on-KG)
+Use this when the user asks for "boosted reasoning," "deep exploration," "connections," or "relationships." This follows the Recursive Language Model (RLM) approach.
+
+### The RLM Protocol
+For complex reasoning, execute a multi-turn navigation loop:
+
+1.  **Phase 1: Seed Discovery (Turn 1)**
+    Find initial nodes using `entitySearch`.
+    *Example*: `run_js(data: "[QUERY] query { entitySearch(query: { search: { string: \"$TOPIC\" } }, page:0, rows:5) { id: iri label: string(name: \"rdfs:label\") } } [/QUERY]")`
+
+2.  **Phase 2: Neighborhood Expansion (Turns 2-3)**
+    Pick 1-2 key IRIs from the results and expand their neighbors to find hidden connections.
+    *Example*: `run_js(data: "[QUERY] query { resource(iri: \"$IRI\") { id: iri label: string(name: \"rdfs:label\") description: string(name: \"schema:description\") related: refs(name: \"schema:about\") { id: iri label: string(name: \"rdfs:label\") } } } [/QUERY]")`
+
+3.  **Phase 3: Synthesis & Summary**
+    Synthesize the final answer from all gathered nodes. Provide a rich summary explaining the "path" or "relationship" you discovered.
 
 ---
 
@@ -21,45 +45,20 @@ For specific metric queries or complex filters, use the tagged format:
 `run_js(data: "[QUERY] query { ... } [/QUERY] [QUESTION] ... [/QUESTION]")`
 
 ### Core Principles
-1. **PAGINATION**: Always use `(page: 0, rows: 20)`. NEVER use `limit`.
-2. **ID MAPPING**: Always map `iri` to `id` (e.g., `id: iri`).
-3. **LABELS**: Use `label: string(name: \"rdfs:label\")` as the primary name field.
-4. **SCORE INTERPRETATION**: 
-   - **`> 0.52`**: Strong semantic match.
-   - **`< 0.48`**: Potential noise/low relevance.
+1.  **PAGINATION**: Always use `(page: 0, rows: 20)`. NEVER use `limit`.
+2.  **ID MAPPING**: Always map `iri` to `id` (e.g., `id: iri`).
+3.  **LABELS**: Use `label: string(name: \"rdfs:label\")` as the primary name field.
+4.  **SUMMARY FIRST**: In your response, write 2-3 sentences summarizing the key finding. Then mention: "The detailed graph data is available in the table below."
 
 ---
 
 ## 🏗 PATTERN REFERENCE
-
-### 1. Discovery (Entity Search)
-The best way to start is to search for a name or topic.
-- **Pattern**: `query { entitySearch(query: { search: { string: \"$SEARCH\" } }, page:0, rows:20) { id: iri label: string(name: \"rdfs:label\") url: string(name: \"schema:url\") matchScore: float(name: \"_:score\") } }`
-
-### 2. Deep Enrichment (Resource Drill-down)
-If you have an entity's IRI (from a search), use `resource()` to pull all its details.
-- **Pattern**: `query { resource(iri: \"$IRI\") { id: iri label: string(name: \"rdfs:label\") description: string(name: \"schema:description\") related: refs(name: \"schema:about\") keywords: strings(name: \"seovoc:keywords\") } }`
-
----
-
-## 💡 Expert Examples
-
-- **User**: "Who is Andrea Volpini?"
-  - **Tool call**: `run_js(data: "Andrea Volpini")` (Using Smart Search)
-
-- **User**: "Get full details for http://data.wordlift.io/andrea"
-  - **Tool call**: `run_js(data: "[QUERY] query { resource(iri: \"http://data.wordlift.io/andrea\") { id: iri label: string(name: \"rdfs:label\") desc: string(name: \"schema:description\") } } [/QUERY] [QUESTION] Full profile lookup [/QUESTION]")`
-
-- **User**: "Trending keywords for my articles?"
-  - **Tool call**: `run_js(data: "[QUERY] query { keywords(sort: {field: \"seovoc:impressions28Days\", direction: DESC}, page: 0, rows: 20) { id: iri keyword: string(name: \"seovoc:name\") impressions: int(name: \"seovoc:impressions28Days\") } } [/QUERY] [QUESTION] Performance keywords [/QUESTION]")`
-
-### 🔎 Full Reference
-See **`assets/query-examples.md`** for 30+ validated patterns, including nested SEO keywords and post-query filtering.
+See **`assets/query-examples.md`** for RLM-specific multi-hop patterns and the full discovery reference.
 
 ---
 
 ### Interpretation & Summary
 After the tool returns `DATA_FOUND`:
-1. **Analyze**: Check the `matchScore` (strong if `> 0.52`).
-2. **Summarize**: Provide a concise summary of the found entity.
-3. **Table**: Inform the user the full data is in the interactive table.
+1.  **Analyze**: Look for overlaps between Phase 1 and Phase 2.
+2.  **Synthesize**: Explain *how* entities are connected (e.g., "X is related to Y through Z").
+3.  **Visualize**: The `webview.html` will automatically render your summary if passed in the URL: `webview.html?summary=$ENCODED_SUMMARY&data=$ENCODED_DATA`.
