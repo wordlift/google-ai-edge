@@ -1,5 +1,5 @@
 ---
-name: wordlift-expert-v9
+name: wordlift-expert-v10
 description: Expert Knowledge Graph Explorer. Supports Quick Search and Advanced Reasoning (RLM-on-KG) for deep-dive entity discovery.
 metadata:
   require-secret: true
@@ -28,7 +28,7 @@ Use this when the user asks for "boosted reasoning," "deep exploration," or "rel
     *Example*: `run_js(script_name: "index", data: "[QUERY] query { entitySearch(query: { search: { string: \"$TOPIC\" } }, page:0, rows:5) { id: iri label: string(name: \"rdfs:label\") name: string(name: \"schema:name\") headline: string(name: \"schema:headline\") } } [/QUERY]")`
 
 2.  **Phase 2: Neighborhood Expansion (Turns 2-3)**: Pick 1-2 IRIs and expand.
-    *Example*: `run_js(script_name: "index", data: "[QUERY] query { resource(iri: \"$IRI\") { id: iri label: string(name: \"rdfs:label\") description: string(name: \"schema:description\") related: refs(name: \"schema:about\") { id: iri label: string(name: \"rdfs:label\") name: string(name: \"schema:name\") headline: string(name: \"schema:headline\") } } } [/QUERY]")`
+    *Example*: `run_js(script_name: "index", data: "[QUERY] query { resource(iri: \"$IRI\") { id: iri headline: string(name: \"schema:headline\") description: string(name: \"schema:description\") related: refs(name: \"schema:about\") { id: iri label: string(name: \"rdfs:label\") name: string(name: \"schema:name\") headline: string(name: \"schema:headline\") } } } [/QUERY]")`
 
 3.  **Phase 3: Synthesis & Answer**: Provide a comprehensive answer leveraging the relationships and evidentiary data discovered across the graph hops.
 
@@ -41,7 +41,7 @@ To trigger the premium visualization:
 ### Principles
 1.  **PAGINATION**: Always use `(page: 0, rows: 20)`.
 2.  **ID MAPPING**: Always map `iri` to `id`.
-3.  **IDENTITY MERGE**: The UI merges `label`, `name`, and `headline` into a single **Entity** column.
+3.  **IDENTITY MERGE**: The UI merges `label`, `name`, and `headline` into a single **Entity** column (Headline prioritized).
 4.  **SUMMARY TAG**: Use `[SUMMARY]` to display findings in the top "Executive Summary" card.
 
 ---

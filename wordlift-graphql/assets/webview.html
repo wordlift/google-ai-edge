@@ -134,7 +134,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="header-title">KG Explorer v9</div>
+            <div class="header-title">KG Explorer v10</div>
             <div class="status-pill">Connected</div>
         </div>
 
@@ -209,7 +209,8 @@
                         let val = row[key];
                         
                         if (key === 'Entity') {
-                            val = row.label || row.name || row.headline || 'Unnamed Entity';
+                            // PRIORITY: Headline (SEO) > Name (Org/Person) > Label (Generic)
+                            val = row.headline || row.name || row.label || 'Unnamed Entity';
                             td.innerHTML = `<span class="pill-string" style="font-weight: 600; color: var(--color-brand);">${val}</span>`;
                         }
                         else if (key === 'id' || (typeof val === 'string' && val.match(/^https?:\/\//i))) {
