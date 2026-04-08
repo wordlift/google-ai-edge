@@ -134,7 +134,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="header-title">KG Explorer v8</div>
+            <div class="header-title">KG Explorer v9</div>
             <div class="status-pill">Connected</div>
         </div>
 
@@ -188,11 +188,9 @@
                 document.getElementById('resultTable').style.display = 'none';
                 document.getElementById('noData').style.display = 'block';
             } else {
-                // IDENTITY MERGE LOGIC (v8)
                 const identityFields = ['label', 'name', 'headline'];
                 let allKeys = [...new Set(list.flatMap(row => Object.keys(row)))];
                 
-                // Construct the final key list: [Entity, id (IRI), ...remaining]
                 const filteredKeys = allKeys.filter(k => !identityFields.includes(k) && k !== 'id');
                 const finalKeys = ['Entity', 'id', ...filteredKeys];
 
@@ -210,12 +208,10 @@
                         const td = document.createElement('td');
                         let val = row[key];
                         
-                        // Handle Merged Identity
                         if (key === 'Entity') {
                             val = row.label || row.name || row.headline || 'Unnamed Entity';
                             td.innerHTML = `<span class="pill-string" style="font-weight: 600; color: var(--color-brand);">${val}</span>`;
                         }
-                        // IRI Linking
                         else if (key === 'id' || (typeof val === 'string' && val.match(/^https?:\/\//i))) {
                              const shortVal = val.split('/').pop().substring(0, 24);
                              td.innerHTML = `<a href="${val}" target="_blank" class="pill pill-iri" title="${val}">🔗 ${shortVal}...</a>`;

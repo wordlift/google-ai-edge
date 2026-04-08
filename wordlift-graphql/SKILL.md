@@ -1,5 +1,5 @@
 ---
-name: wordlift-expert-v8
+name: wordlift-expert-v9
 description: Expert Knowledge Graph Explorer. Supports Quick Search and Advanced Reasoning (RLM-on-KG) for deep-dive entity discovery.
 metadata:
   require-secret: true
@@ -30,7 +30,7 @@ Use this when the user asks for "boosted reasoning," "deep exploration," or "rel
 2.  **Phase 2: Neighborhood Expansion (Turns 2-3)**: Pick 1-2 IRIs and expand.
     *Example*: `run_js(script_name: "index", data: "[QUERY] query { resource(iri: \"$IRI\") { id: iri label: string(name: \"rdfs:label\") description: string(name: \"schema:description\") related: refs(name: \"schema:about\") { id: iri label: string(name: \"rdfs:label\") name: string(name: \"schema:name\") headline: string(name: \"schema:headline\") } } } [/QUERY]")`
 
-3.  **Phase 3: Synthesis**: Rich summary explaining the paths or relationships discovered.
+3.  **Phase 3: Synthesis & Answer**: Provide a comprehensive answer leveraging the relationships and evidentiary data discovered across the graph hops.
 
 ---
 
@@ -48,6 +48,6 @@ To trigger the premium visualization:
 
 ### Interpretation & Summary
 After the tool returns `DATA_FOUND`:
-1.  **Analyze**: Look for overlaps between discovery phases.
-2.  **Synthesize**: Explain *how* entities are tied together.
+1.  **Analyze**: Look for overlaps between discovery phases and identify key influencers or connectors.
+2.  **Synthesize**: Provide a grounded answer based on the discovered relationships and evidence. Explain why these connections are significant.
 3.  **Visualize**: The `webview.html` will automatically render your summary from LocalStorage.
