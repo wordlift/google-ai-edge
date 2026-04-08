@@ -7,9 +7,9 @@
          * AI Edge Gallery - WordLift GraphQL Logic Runner
          * Triggers WordLift API fetch and prepares webview parameters.
          */
-        window['ai_edge_gallery_get_result'] = async (data, secret) => {
+        async function ai_edge_gallery_get_result(data, secret) {
             try {
-                console.log("Raw Skill Data: ", data);
+                console.log("Runner Execution Started. Data length:", data?.length);
                 
                 const queryMatch = data.match(/\[QUERY\](.*?)\[\/QUERY\]/s);
                 const questionMatch = data.match(/\[QUESTION\](.*?)\[\/QUESTION\]/s);
@@ -19,7 +19,7 @@
                 
                 if (!data.includes("[QUERY]")) {
                     question = data.trim();
-                    // v10 Tuning: Added similarity: 0.5 to filter noise and reduced rows for sharper focus.
+                    // v11: Fixed escaped template interpolation that was breaking the script load.
                     query = `query { entitySearch(query: { search: { string: "${question.replace(/"/g, '\\"')}" }, similarity: 0.5 }, page:0, rows:10) { id: iri label: string(name: "rdfs:label") name: string(name: "schema:name") headline: string(name: "schema:headline") url: string(name: "schema:url") mainEntityOfPage: string(name: "schema:mainEntityOfPage") types: refs(name: "rdf:type") matchScore: float(name: "_:score") } }`;
                 } else {
                     query = queryMatch ? queryMatch[1].trim() : null;
@@ -27,13 +27,8 @@
                     summary = summaryMatch ? summaryMatch[1].trim() : null;
                 }
 
-                if (!query) {
-                    throw new Error("Could not construct a valid query.");
-                }
-
-                if (!secret) {
-                    throw new Error("Missing WordLift API Key.");
-                }
+                if (!query) throw new Error("Could not construct a valid query.");
+                if (!secret) throw new Error("Missing WordLift API Key.");
 
                 const response = await fetch("https://api.wordlift.io/graphql", {
                     method: "POST",
@@ -45,16 +40,11 @@
                     body: JSON.stringify({ query })
                 });
 
-                if (response.status === 401) {
-                    throw new Error("Unauthorized (401). Your WordLift API Key is invalid.");
-                }
+                if (response.status === 401) throw new Error("Unauthorized (401). Invalid API Key.");
 
                 const result = await response.json();
-
                 if (result.errors) {
-                    return JSON.stringify({
-                        error: result.errors.map(e => e.message).join("; ")
-                    });
+                    return JSON.stringify({ error: result.errors.map(e => e.message).join("; ") });
                 }
 
                 const payload = {
@@ -66,7 +56,7 @@
                 try {
                     localStorage.setItem('wl_payload', JSON.stringify(payload));
                 } catch (e) {
-                    console.error("Critical: LocalStorage payload save failed:", e);
+                    console.warn("Payload save failed (likely size limit), falling back to URL for small data.");
                 }
 
                 const firstKey = result.data ? Object.keys(result.data)[0] : null;
@@ -75,18 +65,20 @@
                 return JSON.stringify({
                     result: `DATA_FOUND: ${llmSnippet}`,
                     webview: {
-                        // v=10 Relevance Tuning & Label Priority Fix
-                        url: `../assets/webview.html?v=10`,
+                        // v=11 Fix: Script loading error resolved.
+                        url: `../assets/webview.html?v=11`,
                         aspectRatio: 1.2
                     }
                 });
             } catch (e) {
-                console.error("WordLift Edge Skill Error:", e);
-                return JSON.stringify({
-                    error: `Execution failed: ${e.message}`
-                });
+                console.error("WordLift Runner Error:", e);
+                return JSON.stringify({ error: `Execution failed: ${e.message}` });
             }
-        };
+        }
+
+        // Explicit registration on window
+        window.ai_edge_gallery_get_result = ai_edge_gallery_get_result;
+        console.log("WordLift Runner v11 Loaded.");
     </script>
 </body>
 </html>
