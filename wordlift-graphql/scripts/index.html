@@ -19,7 +19,7 @@
                 
                 if (!data.includes("[QUERY]")) {
                     question = data.trim();
-                    // v12: Restored reliable query by removing unsupported 'similarity' argument.
+                    // v13: Reliable fallback query.
                     query = `query { entitySearch(query: { search: { string: "${question.replace(/"/g, '\\"')}" } }, page:0, rows:10) { id: iri label: string(name: "rdfs:label") name: string(name: "schema:name") headline: string(name: "schema:headline") url: string(name: "schema:url") mainEntityOfPage: string(name: "schema:mainEntityOfPage") types: refs(name: "rdf:type") matchScore: float(name: "_:score") } }`;
                 } else {
                     query = queryMatch ? queryMatch[1].trim() : null;
@@ -65,8 +65,8 @@
                 return JSON.stringify({
                     result: `DATA_FOUND: ${llmSnippet}`,
                     webview: {
-                        // v=12: Search functionality restored and verified.
-                        url: `../assets/webview.html?v=12`,
+                        // v=13: Deep Reasoning Protocol Fix (refs are leaves).
+                        url: `../assets/webview.html?v=13`,
                         aspectRatio: 1.2
                     }
                 });
@@ -78,7 +78,7 @@
 
         // Explicit registration on window
         window.ai_edge_gallery_get_result = ai_edge_gallery_get_result;
-        console.log("WordLift Runner v12 Loaded.");
+        console.log("WordLift Runner v13 Loaded.");
     </script>
 </body>
 </html>

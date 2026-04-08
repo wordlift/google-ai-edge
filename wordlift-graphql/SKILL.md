@@ -1,5 +1,5 @@
 ---
-name: wordlift-expert-v12
+name: wordlift-expert-v13
 description: Expert Knowledge Graph Explorer. Supports Quick Search and Advanced Reasoning (RLM-on-KG) for deep-dive entity discovery.
 metadata:
   require-secret: true
@@ -24,11 +24,12 @@ Use this for direct "who/what/where" questions or simple status lookups.
 Use this when the user asks for "boosted reasoning," "deep exploration," or "relationships." Follows the Recursive Language Model (RLM) approach.
 
 ### The RLM Protocol
-1.  **Phase 1: Seed Discovery (Turn 1)**: Find initial nodes.
+1.  **Phase 1: Discovery (Turn 1)**: Find initial nodes.
     *Example*: `run_js(script_name: "index", data: "[QUERY] query { entitySearch(query: { search: { string: \"$TOPIC\" } }, page:0, rows:5) { id: iri label: string(name: \"rdfs:label\") name: string(name: \"schema:name\") headline: string(name: \"schema:headline\") } } [/QUERY]")`
 
-2.  **Phase 2: Neighborhood Expansion (Turns 2-3)**: Pick 1-2 IRIs and expand.
-    *Example*: `run_js(script_name: "index", data: "[QUERY] query { resource(iri: \"$IRI\") { id: iri headline: string(name: \"schema:headline\") description: string(name: \"schema:description\") related: refs(name: \"schema:about\") { id: iri label: string(name: \"rdfs:label\") name: string(name: \"schema:name\") headline: string(name: \"schema:headline\") } } } [/QUERY]")`
+2.  **Phase 2: Pivot & Expand (Turns 2-3)**: Identify connected IRIs and fetch their details in a second hop.
+    *Note*: `refs(...)` returns a list of IRIs (strings), so you cannot use a sub-selection `{...}` on it.
+    *Example Turn 2*: `run_js(script_name: "index", data: "[QUERY] query { resource(iri: \"$TARGET_IRI\") { id: iri label: string(name: \"rdfs:label\") description: string(name: \"schema:description\") related: refs(name: \"schema:about\") } } [/QUERY]")`
 
 3.  **Phase 3: Synthesis & Answer**: Provide a comprehensive answer leveraging the relationships and evidentiary data discovered across the graph hops.
 

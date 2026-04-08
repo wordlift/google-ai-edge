@@ -19,8 +19,8 @@ mainEntityOfPage: string(name: "schema:mainEntityOfPage")
 
 ## 🧠 RLM-on-KG Patterns (Multi-hop)
 
-### 1. Neighborhood Expansion
-Find entities connected to a topic with full SEO metadata expansion.
+### 1. Discovery (Turn 1)
+Find entities connected to a topic.
 ```graphql
 query {
   entitySearch(query: { search: { string: "Andrea Volpini" } }, page: 0, rows: 3) {
@@ -29,31 +29,23 @@ query {
     name: string(name: "schema:name")
     headline: string(name: "schema:headline")
     url: string(name: "schema:url")
-    # Expand neighborhood
-    neighbors: refs(name: "schema:about") {
-      id: iri
-      label: string(name: "rdfs:label")
-      name: string(name: "schema:name")
-      headline: string(name: "schema:headline")
-    }
+    # Get IRIs of related entities (leaf nodes)
+    related: refs(name: "schema:about")
   }
 }
 ```
 
-### 2. Article Context Exploration
-Retrieve an article and its related semantic concepts.
+### 2. Deep reasoning / Pivot & Expand (Turn 2)
+Fetch full details for one or more related IRIs discovered in Turn 1.
 ```graphql
 query {
-  resource(iri: "$IRI") {
+  resource(iri: "http://data.wordlift.io/wl0216/entity/andrea-volpini") {
     id: iri
-    headline: string(name: "schema:headline")
+    label: string(name: "rdfs:label")
     description: string(name: "schema:description")
     url: string(name: "schema:url")
-    related: refs(name: "schema:about") {
-      id: iri
-      label: string(name: "rdfs:label")
-      types: refs(name: "rdf:type")
-    }
+    # Discover secondary connections
+    related: refs(name: "schema:about")
   }
 }
 ```
@@ -81,11 +73,7 @@ query {
 
 ## ⚙️ Data Analysis Rules
 
-### 4. Match Score Interpretation
-- **Score > 0.52**: Strong semantic match.
-- **Score < 0.48**: Likely noise or irrelevant.
-
-### 5. Type-Specific Fallbacks
-- **CreativeWorks (Articles)**: Use `headline`.
-- **Entities (People/Orgs)**: Use `name` or `label`.
-- **Linking**: Always map `iri` to `id` for automatic table linking.
+### 4. Key Lessons
+- **REFS ARE LEAVES**: The `refs(name: "...")` field returns a list of IRI strings. You **cannot** use a sub-selection `{ id label }` on it. Doing so will trigger a `SubSelectionNotAllowed` error.
+- **IDENTITY MERGE**: The UI merges `label`, `name`, and `headline` into a single **Entity** column.
+- **LINKING**: Always map `iri` to `id` for automatic table linking.
