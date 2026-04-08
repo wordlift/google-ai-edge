@@ -1,5 +1,5 @@
 ---
-name: wordlift-expert-v6
+name: wordlift-expert-v7
 description: Expert Knowledge Graph Explorer. Supports Quick Search and Advanced Reasoning (RLM-on-KG) for deep-dive entity discovery.
 metadata:
   require-secret: true

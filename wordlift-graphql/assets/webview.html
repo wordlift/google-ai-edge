@@ -198,7 +198,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="header-title">KG Explorer v6</div>
+            <div class="header-title">KG Explorer v7</div>
             <div class="status-pill">Connected</div>
         </div>
 
@@ -227,26 +227,31 @@
     </div>
 
     <script>
+        // ZERO-PAYLOAD URL STRATEGY (v7)
+        // Everything is pulled from a unified payload object in LocalStorage.
+        let payload = null;
+        try {
+            payload = JSON.parse(localStorage.getItem('wl_payload'));
+        } catch (e) {
+            console.error("Payload read failed:", e);
+        }
+
         const params = new URLSearchParams(window.location.search);
-        const rawJson = params.get('data');
-        const summary = params.get('summary');
-        const qTitle = params.get('q');
+        
+        // Context Fields (Question & Summary)
+        const qTitle = payload?.q || params.get('q');
+        const summary = payload?.summary || params.get('summary');
 
         if (qTitle) document.getElementById('queryTitle').innerText = qTitle;
-        
         if (summary) {
             document.getElementById('summaryCard').style.display = 'block';
             document.getElementById('summaryText').innerText = decodeURIComponent(summary);
         }
 
         try {
-            // Priority 1: URL data (for small payloads)
-            // Priority 2: localStorage (for large payloads / URI Too Long fix)
-            const rawJson = params.get('data') || localStorage.getItem('wl_explorer_data');
+            const data = payload?.data || (params.get('data') ? JSON.parse(decodeURIComponent(params.get('data'))) : null);
             
-            if (!rawJson) throw new Error("No data found in URL or LocalStorage");
-            
-            const data = JSON.parse(decodeURIComponent(rawJson).startsWith('{') ? decodeURIComponent(rawJson) : rawJson);
+            if (!data) throw new Error("No data found in LocalStorage or URL");
             
             const firstKey = Object.keys(data)[0];
             const list = Array.isArray(data[firstKey]) ? data[firstKey] : (typeof data === 'object' ? [data] : null);

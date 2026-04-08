@@ -62,28 +62,29 @@
                     });
                 }
 
-                // Prepare results for the webview.
-                const resultData = JSON.stringify(result.data);
-                const resultStr = encodeURIComponent(resultData);
+                // ZERO-PAYLOAD URL STRATEGY (v7)
+                // We pack EVERYTHING into a single object to ensure the URL remains minimal.
+                const payload = {
+                    data: result.data,
+                    q: question,
+                    summary: summary
+                };
                 
-                // STORAGE FALLBACK: For long URIs, we use localStorage
                 try {
-                    localStorage.setItem('wl_explorer_data', resultData);
+                    localStorage.setItem('wl_payload', JSON.stringify(payload));
                 } catch (e) {
-                    console.warn("LocalStorage save failed:", e);
+                    console.error("Critical: LocalStorage payload save failed:", e);
                 }
 
-                const encodedSummary = summary ? `&summary=${encodeURIComponent(summary)}` : '';
-
-                // Also return a small snippet of data to the LLM so it can summarize it.
+                // Return a small snippet of data to the LLM so it can summarize it.
                 const firstKey = result.data ? Object.keys(result.data)[0] : null;
                 const llmSnippet = firstKey ? JSON.stringify(result.data[firstKey]?.slice(0, 5) || [], null, 2) : "[]";
 
                 return JSON.stringify({
                     result: `DATA_FOUND: ${llmSnippet}`,
                     webview: {
-                        // Added v=6 cache buster and data is now also in localStorage
-                        url: `../assets/webview.html?v=6&q=${encodeURIComponent(question)}${encodedSummary}`,
+                        // v=7 Zero-Payload URL (Guaranteed minimal length)
+                        url: `../assets/webview.html?v=7`,
                         aspectRatio: 1.2
                     }
                 });
