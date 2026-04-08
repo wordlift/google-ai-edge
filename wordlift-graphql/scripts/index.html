@@ -19,8 +19,8 @@
                 
                 if (!data.includes("[QUERY]")) {
                     question = data.trim();
-                    // v11: Fixed escaped template interpolation that was breaking the script load.
-                    query = `query { entitySearch(query: { search: { string: "${question.replace(/"/g, '\\"')}" }, similarity: 0.5 }, page:0, rows:10) { id: iri label: string(name: "rdfs:label") name: string(name: "schema:name") headline: string(name: "schema:headline") url: string(name: "schema:url") mainEntityOfPage: string(name: "schema:mainEntityOfPage") types: refs(name: "rdf:type") matchScore: float(name: "_:score") } }`;
+                    // v12: Restored reliable query by removing unsupported 'similarity' argument.
+                    query = `query { entitySearch(query: { search: { string: "${question.replace(/"/g, '\\"')}" } }, page:0, rows:10) { id: iri label: string(name: "rdfs:label") name: string(name: "schema:name") headline: string(name: "schema:headline") url: string(name: "schema:url") mainEntityOfPage: string(name: "schema:mainEntityOfPage") types: refs(name: "rdf:type") matchScore: float(name: "_:score") } }`;
                 } else {
                     query = queryMatch ? queryMatch[1].trim() : null;
                     question = questionMatch ? questionMatch[1].trim() : "WordLift Query";
@@ -56,7 +56,7 @@
                 try {
                     localStorage.setItem('wl_payload', JSON.stringify(payload));
                 } catch (e) {
-                    console.warn("Payload save failed (likely size limit), falling back to URL for small data.");
+                    console.warn("Payload save failed (likely size limit).");
                 }
 
                 const firstKey = result.data ? Object.keys(result.data)[0] : null;
@@ -65,8 +65,8 @@
                 return JSON.stringify({
                     result: `DATA_FOUND: ${llmSnippet}`,
                     webview: {
-                        // v=11 Fix: Script loading error resolved.
-                        url: `../assets/webview.html?v=11`,
+                        // v=12: Search functionality restored and verified.
+                        url: `../assets/webview.html?v=12`,
                         aspectRatio: 1.2
                     }
                 });
@@ -78,7 +78,7 @@
 
         // Explicit registration on window
         window.ai_edge_gallery_get_result = ai_edge_gallery_get_result;
-        console.log("WordLift Runner v11 Loaded.");
+        console.log("WordLift Runner v12 Loaded.");
     </script>
 </body>
 </html>
