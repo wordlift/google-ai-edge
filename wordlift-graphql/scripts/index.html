@@ -73,8 +73,8 @@
                 return JSON.stringify({
                     result: `DATA_FOUND: ${llmSnippet}`,
                     webview: {
-                        // Added v=4 cache buster and summary support
-                        url: `../assets/webview.html?v=4&data=${resultStr}&q=${encodeURIComponent(question)}${encodedSummary}`,
+                        // Added v=5 cache buster and summary support
+                        url: `../assets/webview.html?v=5&data=${resultStr}&q=${encodeURIComponent(question)}${encodedSummary}`,
                         aspectRatio: 1.2
                     }
                 });
