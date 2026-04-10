@@ -33,7 +33,7 @@
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 0 auto;
             display: flex;
             flex-direction: column;
@@ -111,7 +111,7 @@
         .table-wrap { overflow-x: auto; }
         table { width: 100%; border-collapse: collapse; text-align: left; }
         th { background: #FAFBFC; padding: 14px 24px; font-size: 11px; font-weight: 700; color: var(--color-text-sub); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--color-border); white-space: nowrap; }
-        td { padding: 16px 24px; border-bottom: 1px solid var(--color-border); font-size: 14px; }
+        td { padding: 16px 24px; border-bottom: 1px solid var(--color-border); font-size: 14px; vertical-align: top; }
         tr:last-child td { border-bottom: none; }
         tr:hover td { background: #F8FAFC; }
 
@@ -120,6 +120,19 @@
         .pill-string { background: #F0FDF4; color: #15803D; }
         .pill-iri { background: #FFF7ED; color: #C2410C; text-decoration: none; border: 1px solid #FED7AA; }
         .pill-iri:hover { background: #FED7AA; }
+
+        /* Type badges */
+        .type-badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; }
+        .type-person { background: #EDE9FE; color: #6D28D9; }
+        .type-organization { background: #DBEAFE; color: #1D4ED8; }
+        .type-place { background: #D1FAE5; color: #059669; }
+        .type-article { background: #FEF3C7; color: #B45309; }
+        .type-creativework { background: #FCE7F3; color: #BE185D; }
+        .type-event { background: #FFE4E6; color: #E11D48; }
+        .type-product { background: #CCFBF1; color: #0D9488; }
+        .type-other { background: #F1F5F9; color: #475569; }
+
+        .desc-cell { max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--color-text-sub); font-size: 13px; }
 
         .metric-val { font-family: ui-monospace, SFMono-Regular, monospace; font-weight: 600; }
         .no-data { padding: 64px; text-align: center; color: var(--color-text-sub); }
@@ -134,7 +147,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="header-title">KG Explorer v13</div>
+            <div class="header-title">KG Explorer v14</div>
             <div class="status-pill">Connected</div>
         </div>
 
@@ -160,6 +173,31 @@
     </div>
 
     <script>
+        // --- Helpers ---
+        function extractPrimaryType(typesArray) {
+            if (!typesArray || !Array.isArray(typesArray) || typesArray.length === 0) return null;
+            // Prefer the most specific schema.org type
+            const dominated = ['http://schema.org/Thing', 'http://schema.org/CreativeWork'];
+            const specific = typesArray.filter(t => !dominated.includes(t));
+            const best = specific.length > 0 ? specific[0] : typesArray[0];
+            // Extract short name: "http://schema.org/Person" -> "Person"
+            return best.split('/').pop();
+        }
+
+        function getTypeBadgeClass(typeName) {
+            if (!typeName) return 'type-other';
+            const t = typeName.toLowerCase();
+            if (t === 'person') return 'type-person';
+            if (t === 'organization' || t === 'localbusiness') return 'type-organization';
+            if (t === 'place') return 'type-place';
+            if (t === 'article' || t === 'blogposting' || t === 'newsarticle') return 'type-article';
+            if (t === 'creativework' || t === 'webpage' || t === 'webpagelement') return 'type-creativework';
+            if (t === 'event') return 'type-event';
+            if (t === 'product' || t === 'offer') return 'type-product';
+            return 'type-other';
+        }
+
+        // --- Main ---
         let payload = null;
         try {
             payload = JSON.parse(localStorage.getItem('wl_payload'));
@@ -180,7 +218,7 @@
         try {
             const data = payload?.data || (params.get('data') ? JSON.parse(decodeURIComponent(params.get('data'))) : null);
             if (!data) throw new Error("No data found");
-            
+
             const firstKey = Object.keys(data)[0];
             const list = Array.isArray(data[firstKey]) ? data[firstKey] : (typeof data === 'object' ? [data] : null);
 
@@ -188,16 +226,19 @@
                 document.getElementById('resultTable').style.display = 'none';
                 document.getElementById('noData').style.display = 'block';
             } else {
+                // Build columns: Type | Entity | KG Link | Description | ...remaining
                 const identityFields = ['label', 'name', 'headline'];
+                const skipFields = [...identityFields, 'id', 'types', 'description'];
                 let allKeys = [...new Set(list.flatMap(row => Object.keys(row)))];
-                
-                const filteredKeys = allKeys.filter(k => !identityFields.includes(k) && k !== 'id');
-                const finalKeys = ['Entity', 'id', ...filteredKeys];
+                const extraKeys = allKeys.filter(k => !skipFields.includes(k));
+                const finalKeys = ['_type', 'Entity', 'id', 'description', ...extraKeys];
 
                 const headRow = document.getElementById('tableHead');
                 finalKeys.forEach(key => {
                     const th = document.createElement('th');
-                    th.innerText = key === 'id' ? 'KG Link (IRI)' : key.replace(/([A-Z])/g, ' $1').trim();
+                    if (key === '_type') th.innerText = 'Type';
+                    else if (key === 'id') th.innerText = 'KG Link (IRI)';
+                    else th.innerText = key.replace(/([A-Z])/g, ' $1').trim();
                     headRow.appendChild(th);
                 });
 
@@ -207,18 +248,41 @@
                     finalKeys.forEach(key => {
                         const td = document.createElement('td');
                         let val = row[key];
-                        
-                        if (key === 'Entity') {
-                            val = row.headline || row.name || row.label || 'Unnamed Entity';
-                            td.innerHTML = `<span class="pill-string" style="font-weight: 600; color: var(--color-brand);">${val}</span>`;
+
+                        if (key === '_type') {
+                            const primaryType = extractPrimaryType(row.types);
+                            const cls = getTypeBadgeClass(primaryType);
+                            td.innerHTML = primaryType
+                                ? `<span class="type-badge ${cls}">${primaryType}</span>`
+                                : `<span class="type-badge type-other">Unknown</span>`;
                         }
-                        else if (key === 'id' || (typeof val === 'string' && val.match(/^https?:\/\//i))) {
-                             const shortVal = val.split('/').pop().substring(0, 24);
-                             td.innerHTML = `<a href="${val}" target="_blank" class="pill pill-iri" title="${val}">🔗 ${shortVal}...</a>`;
-                        } 
+                        else if (key === 'Entity') {
+                            val = row.headline || row.name || row.label || 'Unnamed Entity';
+                            td.innerHTML = `<span style="font-weight: 600; color: var(--color-brand);">${val}</span>`;
+                        }
+                        else if (key === 'id') {
+                            if (val) {
+                                const shortVal = val.split('/').pop().substring(0, 28);
+                                td.innerHTML = `<a href="${val}" target="_blank" class="pill pill-iri" title="${val}">🔗 ${shortVal}…</a>`;
+                            } else {
+                                td.innerHTML = '-';
+                            }
+                        }
+                        else if (key === 'description') {
+                            td.className = 'desc-cell';
+                            td.title = val || '';
+                            td.innerText = val ? val.substring(0, 120) + (val.length > 120 ? '…' : '') : '-';
+                        }
+                        else if (typeof val === 'string' && val.match(/^https?:\/\//i)) {
+                            const shortVal = val.split('/').pop().substring(0, 24);
+                            td.innerHTML = `<a href="${val}" target="_blank" class="pill pill-iri" title="${val}">🔗 ${shortVal}…</a>`;
+                        }
                         else if (typeof val === 'number') {
                             td.innerHTML = `<span class="metric-val pill-number">${val.toLocaleString()}</span>`;
-                        } 
+                        }
+                        else if (Array.isArray(val)) {
+                            td.innerHTML = val.map(v => `<span class="pill pill-string" style="margin: 2px;">${String(v).split('/').pop()}</span>`).join(' ');
+                        }
                         else {
                             td.innerHTML = `<span class="pill-string">${val || '-'}</span>`;
                         }

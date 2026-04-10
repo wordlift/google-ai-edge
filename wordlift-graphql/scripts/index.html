@@ -4,23 +4,25 @@
 <body>
     <script>
         /**
-         * AI Edge Gallery - WordLift GraphQL Logic Runner
-         * Triggers WordLift API fetch and prepares webview parameters.
+         * AI Edge Gallery - WordLift GraphQL Logic Runner (v14)
+         * Entity-First Discovery: broad search, no constraints, types exposed.
          */
         async function ai_edge_gallery_get_result(data, secret) {
             try {
-                console.log("Runner Execution Started. Data length:", data?.length);
-                
+                console.log("Runner v14. Data length:", data?.length);
+
                 const queryMatch = data.match(/\[QUERY\](.*?)\[\/QUERY\]/s);
                 const questionMatch = data.match(/\[QUESTION\](.*?)\[\/QUESTION\]/s);
                 const summaryMatch = data.match(/\[SUMMARY\](.*?)\[\/SUMMARY\]/s);
-                
+
                 let query, question, summary;
-                
+
                 if (!data.includes("[QUERY]")) {
                     question = data.trim();
-                    // v13: Reliable fallback query.
-                    query = `query { entitySearch(query: { search: { string: "${question.replace(/"/g, '\\"')}" } }, page:0, rows:10) { id: iri label: string(name: "rdfs:label") name: string(name: "schema:name") headline: string(name: "schema:headline") url: string(name: "schema:url") mainEntityOfPage: string(name: "schema:mainEntityOfPage") types: refs(name: "rdf:type") matchScore: float(name: "_:score") } }`;
+                    // v14: Entity-First Discovery — broad, unconstrained search.
+                    // Returns 20 results with types so the model can distinguish
+                    // Person vs Article vs Organization before drilling down.
+                    query = `query { entitySearch(query: { search: { string: "${question.replace(/"/g, '\\"')}" } }, page:0, rows:20) { id: iri label: string(name: "rdfs:label") name: string(name: "schema:name") headline: string(name: "schema:headline") description: string(name: "schema:description") url: string(name: "schema:url") types: refs(name: "rdf:type") matchScore: float(name: "_:score") } }`;
                 } else {
                     query = queryMatch ? queryMatch[1].trim() : null;
                     question = questionMatch ? questionMatch[1].trim() : "WordLift Query";
@@ -52,11 +54,11 @@
                     q: question,
                     summary: summary
                 };
-                
+
                 try {
                     localStorage.setItem('wl_payload', JSON.stringify(payload));
                 } catch (e) {
-                    console.warn("Payload save failed (likely size limit).");
+                    console.warn("Payload save failed.");
                 }
 
                 const firstKey = result.data ? Object.keys(result.data)[0] : null;
@@ -65,8 +67,7 @@
                 return JSON.stringify({
                     result: `DATA_FOUND: ${llmSnippet}`,
                     webview: {
-                        // v=13: Deep Reasoning Protocol Fix (refs are leaves).
-                        url: `../assets/webview.html?v=13`,
+                        url: `../assets/webview.html?v=14`,
                         aspectRatio: 1.2
                     }
                 });
@@ -76,9 +77,8 @@
             }
         }
 
-        // Explicit registration on window
         window.ai_edge_gallery_get_result = ai_edge_gallery_get_result;
-        console.log("WordLift Runner v13 Loaded.");
+        console.log("WordLift Runner v14 Loaded.");
     </script>
 </body>
 </html>
