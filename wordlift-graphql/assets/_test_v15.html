@@ -1,0 +1,14 @@
+<!DOCTYPE html><html><head><title>v15 Test</title></head><body>
+<script>
+fetch('/tmp_payload.json').then(r=>r.json()).then(d=>{
+    const p = {
+        data: d.data,
+        q: "Andrea Volpini",
+        summary: "RLM-on-KG v15: Entity-first discovery with co-mention expansion. Found 20 results including articles mentioning Andrea Volpini and related entities like Umberto Eco, Knowledge Graph, and Schema.org."
+    };
+    localStorage.setItem('wl_payload', JSON.stringify(p));
+    window.location.href = './webview.html?v=15';
+});
+</script>
+<p>Loading v15 test...</p>
+</body></html>

@@ -4,12 +4,13 @@
 <body>
     <script>
         /**
-         * AI Edge Gallery - WordLift GraphQL Logic Runner (v15)
-         * RLM-on-KG aligned: Entity-first discovery with schema:mentions for co-mention expansion.
+         * AI Edge Gallery - WordLift GraphQL Logic Runner (v16)
+         * Context Optimization: Distilled snippets for the LLM history (128K window).
+         * Full data remains in localStorage for the Webview.
          */
         async function ai_edge_gallery_get_result(data, secret) {
             try {
-                console.log("Runner v15 (RLM-on-KG). Data length:", data?.length);
+                console.log("Runner v16 (Context-Optimized). Data length:", data?.length);
 
                 const queryMatch = data.match(/\[QUERY\](.*?)\[\/QUERY\]/s);
                 const questionMatch = data.match(/\[QUESTION\](.*?)\[\/QUESTION\]/s);
@@ -19,9 +20,7 @@
 
                 if (!data.includes("[QUERY]")) {
                     question = data.trim();
-                    // v15: Entity-first discovery with co-mention expansion field.
-                    // Includes schema:mentions so the model can discover co-mentioned entities
-                    // (equivalent to expand_neighbors in the RLM-on-KG paper).
+                    // v16 Fallback Discovery: Includes mentions for navigation.
                     query = `query { entitySearch(query: { search: { string: "${question.replace(/"/g, '\\"')}" } }, page:0, rows:20) { id: iri label: string(name: "rdfs:label") name: string(name: "schema:name") headline: string(name: "schema:headline") description: string(name: "schema:description") url: string(name: "schema:url") types: refs(name: "rdf:type") mentions: refs(name: "schema:mentions") matchScore: float(name: "_:score") } }`;
                 } else {
                     query = queryMatch ? queryMatch[1].trim() : null;
@@ -49,25 +48,40 @@
                     return JSON.stringify({ error: result.errors.map(e => e.message).join("; ") });
                 }
 
+                // 1. SAVE FULL DATA FOR WEBVIEW (untruncated)
                 const payload = {
                     data: result.data,
                     q: question,
                     summary: summary
                 };
-
                 try {
                     localStorage.setItem('wl_payload', JSON.stringify(payload));
                 } catch (e) {
                     console.warn("Payload save failed.");
                 }
 
+                // 2. DISTILL SNIPPET FOR LLM CONTEXT (token efficiency)
                 const firstKey = result.data ? Object.keys(result.data)[0] : null;
-                const llmSnippet = firstKey ? JSON.stringify(result.data[firstKey]?.slice(0, 5) || [], null, 2) : "[]";
+                const rawList = firstKey ? (result.data[firstKey] || []) : [];
+                
+                // Distillation logic: Lean, small, token-dense
+                const llmSnippet = rawList.slice(0, 5).map(item => {
+                    const id = item.id || "";
+                    return {
+                        id: id,
+                        name: item.headline || item.name || item.label || 'unnamed',
+                        type: (item.types && item.types[0]) ? item.types[0].split('/').pop() : '?',
+                        // Truncate to 200 chars for context efficiency
+                        desc: item.description ? (item.description.substring(0, 200) + "...") : "",
+                        // Count mentions instead of listing all IRIs
+                        mentions: (item.mentions || []).length
+                    };
+                });
 
                 return JSON.stringify({
-                    result: `DATA_FOUND: ${llmSnippet}`,
+                    result: `DATA_FOUND: ${JSON.stringify(llmSnippet, null, 2)}`,
                     webview: {
-                        url: `../assets/webview.html?v=15`,
+                        url: `../assets/webview.html?v=16`,
                         aspectRatio: 1.2
                     }
                 });
@@ -78,7 +92,7 @@
         }
 
         window.ai_edge_gallery_get_result = ai_edge_gallery_get_result;
-        console.log("WordLift Runner v15 (RLM-on-KG) Loaded.");
+        console.log("WordLift Runner v16 (Context-Optimized) Loaded.");
     </script>
 </body>
 </html>

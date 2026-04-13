@@ -1,0 +1,205 @@
+{
+  "data" : {
+    "entitySearch" : [ {
+      "id" : "http://data.wordlift.io/wl0216/post/unraveling-the-mystery-of-the-voynich-manuscript-28093",
+      "label" : null,
+      "name" : null,
+      "headline" : "Unraveling the Mystery of the Voynich Manuscript",
+      "description" : "Discover Andrea Volpini's captivating exploration in unraveling the mystery of the Voynich manuscript, shedding light on one of history's most perplexing cryptic texts.",
+      "url" : "https://wordlift.io/blog/en/unraveling-the-mystery-of-the-voynich-manuscript/",
+      "types" : [ "http://schema.org/Article" ],
+      "mentions" : [ "http://data.wordlift.io/wl0216/entity/umberto_eco", "http://data.wordlift.io/wl0216/entity/data", "http://data.wordlift.io/wl0216/entity/what_are_embeddings_", "http://data.wordlift.io/wl0216/entity/artificial_intelligence", "http://data.wordlift.io/wl0216/entity/writing", "http://data.wordlift.io/wl0216/entity/natural_language_processing", "http://data.wordlift.io/wl0216/entity/knowledge_graph", "http://data.wordlift.io/wl0216/entity/llm-25790" ],
+      "matchScore" : 0.5292659997940063
+    }, {
+      "id" : "http://data.wordlift.io/wl0216/post/paola_reghenzis_success_story",
+      "label" : null,
+      "name" : null,
+      "headline" : "SEO Case Study: Paola Reghenzi’s Success Story",
+      "description" : "While attending this year’s “Da Zero a SEO” conference, held in Bologna from February 15th to 17th, where we were invited to serve both as a sponsor and as speakers, our CEO Andrea Volpini found himself in a very funny and serendipitous situation. While sitting in the front row of the audience, he noticed that...",
+      "url" : "https://wordlift.io/blog/en/seo-case-study-blog/",
+      "types" : [ "http://schema.org/Article" ],
+      "mentions" : [ "http://data.wordlift.io/wl0216/entity/semantic_seo", "http://data.wordlift.io/wl0216/entity/wordpress", "http://data.wordlift.io/wl0216/entity/wordlift", "http://data.wordlift.io/wl0216/entity/entity", "http://data.wordlift.io/wl0216/entity/andrea_volpini", "http://data.wordlift.io/wl0216/entity/what_is_structured_data_", "http://data.wordlift.io/wl0216/entity/triple" ],
+      "matchScore" : 0.48110419511795044
+    }, {
+      "id" : "http://data.wordlift.io/wl0216/post/group_66fd8cbbeaad9-27985",
+      "label" : null,
+      "name" : null,
+      "headline" : "Impostazioni testimonial cards",
+      "description" : null,
+      "url" : "https://wordlift.io/blog/en/?post_type=acf-field-group&p=27985",
+      "types" : [ "http://schema.org/Article" ],
+      "mentions" : [ ],
+      "matchScore" : 0.4709312617778778
+    }, {
+      "id" : "http://data.wordlift.io/wl0216/post/from_knowledge_graphs_to_ai-powered_seo",
+      "label" : null,
+      "name" : null,
+      "headline" : "From Knowledge Graphs to AI-powered SEO",
+      "description" : "Using taxonomies, schemas and knowledge graphs to improve search engine rankings and web publishing workflows Structured data has became the avenue toward advanced functionalities in Google (check out our rich results guide) and at the same time, the bridge between traditional search and voice search. Here is an abstract of Andrea Volpini's presentation at Connected Data...",
+      "url" : "https://wordlift.io/blog/en/knowledge-graphs-ai-powered-seo/",
+      "types" : [ "http://schema.org/Article" ],
+      "mentions" : [ "http://data.wordlift.io/wl0216/entity/linked_data", "http://data.wordlift.io/wl0216/entity/andrea_volpini", "http://data.wordlift.io/wl0216/entity/what_is_structured_data_", "http://data.wordlift.io/wl0216/entity/how_to_optimize_your_website_for_voice_search", "http://data.wordlift.io/wl0216/entity/google_assistant", "http://data.wordlift.io/wl0216/entity/bill_slawski", "http://data.wordlift.io/wl0216/entity/google_knowledge_graph", "http://data.wordlift.io/wl0216/entity/connected_data_london", "http://data.wordlift.io/wl0216/entity/semantic_web" ],
+      "matchScore" : 0.46553507447242737
+    }, {
+      "id" : "http://data.wordlift.io/wl0216/entity/cosebelle_magazine",
+      "label" : null,
+      "name" : "Cosebelle magazine",
+      "headline" : null,
+      "description" : "Cosebelle Magazine is an Italian web-magazine founded on November 2010 with the intent of showing all the beautiful things that our world has to offer. The all-women editorial staff daily deals with the most different topics from music and traveling to architecture and recipes, all their entries are gracefully curated. The magazine is also active...",
+      "url" : "https://wordlift.io/blog/en/entity/cosebelle-magazine/",
+      "types" : [ "http://schema.org/CreativeWork" ],
+      "mentions" : [ ],
+      "matchScore" : 0.4510994851589203
+    }, {
+      "id" : "http://data.wordlift.io/wl0216/post/meet-angela-ballesteros-garcia-our-business-developer-26313",
+      "label" : null,
+      "name" : null,
+      "headline" : "Meet Ángela Ballesteros García, our Business Developer!",
+      "description" : "WordLift is very happy to introduce you a new member of the team: let's meet Ángela Ballesteros García, our Business Developer.",
+      "url" : "https://wordlift.io/blog/en/meet-angela-ballesteros-garcia-business-developer/",
+      "types" : [ "http://schema.org/Article" ],
+      "mentions" : [ "http://data.wordlift.io/wl0216/entity/search_engine_optimization", "http://data.wordlift.io/wl0216/entity/sales", "http://data.wordlift.io/wl0216/entity/wordlift", "http://data.wordlift.io/wl0216/entity/knowledge_graph" ],
+      "matchScore" : 0.4498988091945648
+    }, {
+      "id" : "http://data.wordlift.io/wl0216/page/-20318",
+      "label" : null,
+      "name" : null,
+      "headline" : "Boh",
+      "description" : "Structured data is the future of SEO. Matteo Cassese was here.",
+      "url" : "https://wordlift.io/blog/en/?page_id=20318",
+      "types" : [ "http://schema.org/Article" ],
+      "mentions" : [ "http://data.wordlift.io/wl0216/entity/writing", "http://data.wordlift.io/wl0216/entity/search_engine_optimization", "http://data.wordlift.io/wl0216/entity/matteo_cassese_2" ],
+      "matchScore" : 0.44523870944976807
+    }, {
+      "id" : "http://data.wordlift.io/wl0216/post/how_to_survive_2017_with_your_blog__a_conversation_with_luca_conti",
+      "label" : null,
+      "name" : null,
+      "headline" : "How to survive 2017 with your blog: a conversation with Luca Conti",
+      "description" : "Rapid changes are transforming the online media industry, demanding new evolutions to editorial teams, bloggers and content writers. Last November, the Oxford English Dictionary chose post-truth as Word of the Year 2016, an adjective that can be used to denote those “circumstances in which objective facts are less influential in shaping public opinion than appeals...",
+      "url" : "https://wordlift.io/blog/en/survive-2017-blog-conversation-luca-conti/",
+      "types" : [ "http://schema.org/Article" ],
+      "mentions" : [ "http://data.wordlift.io/wl0216/entity/schema-org", "http://data.wordlift.io/wl0216/entity/content_marketing", "http://data.wordlift.io/wl0216/entity/wordlift", "http://data.wordlift.io/wl0216/entity/wordpress", "http://data.wordlift.io/wl0216/entity/how_to_optimize_your_website_for_voice_search", "http://data.wordlift.io/wl0216/entity/google", "http://data.wordlift.io/wl0216/entity/semantic_web", "http://data.wordlift.io/wl0216/entity/google_home", "http://data.wordlift.io/wl0216/entity/writing", "http://data.wordlift.io/wl0216/entity/amazon_echo" ],
+      "matchScore" : 0.4424668252468109
+    }, {
+      "id" : "http://data.wordlift.io/wl0216/post/how-made-in-italy-luxury-brand-wins-google-search-scarosso-case-study-24550",
+      "label" : null,
+      "name" : null,
+      "headline" : "How Made In Italy Luxury Brand Wins Google Search - Scarosso Case Study",
+      "description" : "E-commerce SEO: learn about Scarosso's case study and how it won Google SERPs by building the Product Knowledge Graph.",
+      "url" : "https://wordlift.io/blog/en/ecommerce-seo-case-study/",
+      "types" : [ "http://schema.org/Article" ],
+      "mentions" : [ "http://data.wordlift.io/wl0216/post/5_best_seo_case_studies", "http://data.wordlift.io/wl0216/entity/schema-org", "http://data.wordlift.io/wl0216/post/an_seo_passport_for_your_products__the_unique_product_identifier", "http://data.wordlift.io/wl0216/entity/e-commerce", "http://data.wordlift.io/wl0216/entity/knowledge_graph", "http://data.wordlift.io/wl0216/entity/search_engine_optimization" ],
+      "matchScore" : 0.44195330142974854
+    }, {
+      "id" : "http://data.wordlift.io/wl0216/post/meet-munene-kelvin-our-new-seo-specialist-23372",
+      "label" : null,
+      "name" : null,
+      "headline" : "Meet Munene Kelvin, our new SEO Specialist!",
+      "description" : "WordLift is very happy to have a new member of the team: let's meet Munene Kelvin, our SEO specialist.",
+      "url" : "https://wordlift.io/blog/en/meet-munene-kelvin-seo-specialist/",
+      "types" : [ "http://schema.org/Article" ],
+      "mentions" : [ "http://data.wordlift.io/wl0216/entity/aleyda_solis", "http://data.wordlift.io/wl0216/entity/wordlift" ],
+      "matchScore" : 0.4407636225223541
+    }, {
+      "id" : "http://data.wordlift.io/wl0216/post/build_your_first_bot_powered_by_wordpress",
+      "label" : null,
+      "name" : null,
+      "headline" : "Build Your first Bot powered by WordPress",
+      "description" : "Few weeks ago I did a very basic experiment to create, for one of our test websites, a bot on Telegram and to feed it with data coming from their WordPress website. Camminando Con is a trekking organization, offering hiking tours in a small valley one hour from Rome and the content structure of their website reflects...",
+      "url" : "https://wordlift.io/blog/en/build-your-first-bot-wordpress/",
+      "types" : [ "http://schema.org/Article" ],
+      "mentions" : [ "http://data.wordlift.io/wl0216/entity/dataset", "http://data.wordlift.io/wl0216/entity/ifttt", "http://data.wordlift.io/wl0216/entity/schema-org", "http://data.wordlift.io/wl0216/entity/telegram", "http://data.wordlift.io/wl0216/entity/wordlift", "http://data.wordlift.io/wl0216/entity/web_feed" ],
+      "matchScore" : 0.43841683864593506
+    }, {
+      "id" : "http://data.wordlift.io/wl0216/post/brand_serp__google_your_brand_name_and_discover_the_power_of_your_new_digital_business_card",
+      "label" : null,
+      "name" : "Brand SERP: Google Your Brand Name And Discover The Power of Your New Digital Business Card",
+      "headline" : "Brand SERP: Google Your Brand Name And Discover The Power of Your New Digital Business Card",
+      "description" : "Your most important business card is on Google and it is generated tens, hundreds or even thousands of times every day by Google’s artificial intelligence algorithms. In this article we will explore what it means to be judged by a machine, how you can use Google as a window into your content marketing and how...",
+      "url" : null,
+      "types" : [ "http://schema.org/Article", "http://schema.org/Thing", "http://schema.org/CreativeWork" ],
+      "mentions" : [ "http://data.wordlift.io/wl0216/entity/home_page", "http://data.wordlift.io/wl0216/entity/what_is_structured_data_", "http://data.wordlift.io/wl0216/entity/content_marketing", "http://data.wordlift.io/wl0216/entity/search_engine_optimization", "http://data.wordlift.io/wl0216/entity/rich_snippet", "http://data.wordlift.io/wl0216/entity/youtube" ],
+      "matchScore" : 0.4375240206718445
+    }, {
+      "id" : "http://data.wordlift.io/wl0216/post/a_60_000-verse_poem__the_epic_history_of_greater_persia__and_the_wealth_of_linked_data_for_libraries",
+      "label" : null,
+      "name" : null,
+      "headline" : "A 60,000-verse poem, the Epic History of Greater Persia, and the Wealth of Linked Data for Libraries",
+      "description" : "The web constantly plays a powerful role in shaping our world and is the result of an enlightened thinking. This is an article about the illuminating work of a Persian Sultan who lived in 1000 CE, the beauty of web decentralization and the magic of linked data for libraries and academics. Tapping into the Magic...",
+      "url" : "https://wordlift.io/blog/en/linked-data-for-libraries/",
+      "types" : [ "http://schema.org/Article" ],
+      "mentions" : [ "http://data.wordlift.io/wl0216/entity/shahnamah_of_ibrahim_sultan", "http://data.wordlift.io/wl0216/entity/artificial_intelligence", "http://data.wordlift.io/wl0216/entity/wordlift", "http://data.wordlift.io/wl0216/entity/wikidata", "http://data.wordlift.io/wl0216/entity/what_is_structured_data_" ],
+      "matchScore" : 0.43511590361595154
+    }, {
+      "id" : "http://data.wordlift.io/wl0216/web-story/bloom-for-seo-copy-25864",
+      "label" : null,
+      "name" : null,
+      "headline" : "Optimizing SEO with AI Agent",
+      "description" : "Uncover the future of SEO with AI Agent—revolutionizing optimization strategies!",
+      "url" : "https://wordlift.io/blog/en/web-stories/optimizing-seo-with-ai-agent/",
+      "types" : [ "http://schema.org/WebPage" ],
+      "mentions" : [ ],
+      "matchScore" : 0.43455737829208374
+    }, {
+      "id" : "http://data.wordlift.io/wl0216/entity/keyword",
+      "label" : null,
+      "name" : "Keyword",
+      "headline" : null,
+      "description" : "Wikimedia disambiguation page",
+      "url" : "https://wordlift.io/blog/en/entity/keyword/",
+      "types" : [ "http://schema.org/CreativeWork" ],
+      "mentions" : [ ],
+      "matchScore" : 0.43432846665382385
+    }, {
+      "id" : "http://data.wordlift.io/wl0216/post/local-seo-in-2023-7-simple-ways-to-dominate-local-search-25329",
+      "label" : null,
+      "name" : null,
+      "headline" : "Local SEO in 2025: 18 Simple Ways to Dominate Local Search",
+      "description" : "Unlock the power of local SEO, transforming your local business into a community favourite and outshining global brands -",
+      "url" : "https://wordlift.io/blog/en/optimizing-local-seo/",
+      "types" : [ "http://schema.org/Article" ],
+      "mentions" : [ "http://data.wordlift.io/wl0216/entity/keyword", "http://data.wordlift.io/wl0216/entity/google", "http://data.wordlift.io/wl0216/entity/knowledge_graph", "http://data.wordlift.io/wl0216/entity/semantic_seo", "http://data.wordlift.io/wl0216/entity/content_marketing", "http://data.wordlift.io/wl0216/entity/what_is_structured_data_" ],
+      "matchScore" : 0.43423280119895935
+    }, {
+      "id" : "http://data.wordlift.io/wl0216/post/serp_analysis_with_the_help_of_ai",
+      "label" : null,
+      "name" : null,
+      "headline" : "SERP Analysis with the help of AI",
+      "description" : "SERP analysis is an essential step in the process of content optimization to outrank the competition on Google. In this blog post I will share a new way to run SERP analysis using machine learning and a simple python program that you can run on Google Colab.  Jump directly to the code: Google SERP Analysis...",
+      "url" : null,
+      "types" : [ "http://schema.org/Article" ],
+      "mentions" : [ "http://data.wordlift.io/wl0216/entity/search_engine_optimization", "http://data.wordlift.io/wl0216/entity/machine_learning", "http://data.wordlift.io/wl0216/entity/bert", "http://data.wordlift.io/wl0216/entity/jason_barnard", "http://data.wordlift.io/wl0216/entity/natural_language_processing" ],
+      "matchScore" : 0.4331032931804657
+    }, {
+      "id" : "http://data.wordlift.io/wl0216/post/top-5-underutilized-schema-markup-for-publishers-23106",
+      "label" : null,
+      "name" : null,
+      "headline" : "Top 5 Underutilized Schema Markups for Publishers",
+      "description" : "Learn more about the 5 best underutilized schema markups for publishers and start developing your newsroom business today.",
+      "url" : "https://wordlift.io/blog/en/underutilized-schema-markups-for-publishers/",
+      "types" : [ "http://schema.org/Article" ],
+      "mentions" : [ "http://data.wordlift.io/wl0216/entity/linked_data", "http://data.wordlift.io/wl0216/entity/knowledge_graph", "http://data.wordlift.io/wl0216/entity/e-a-t", "http://data.wordlift.io/wl0216/entity/search_engine_optimization", "http://data.wordlift.io/wl0216/entity/google_news" ],
+      "matchScore" : 0.4330543279647827
+    }, {
+      "id" : "http://data.wordlift.io/wl0216/post/semantics_2017__what_happens_when_artificial_intelligence_meets_seo",
+      "label" : null,
+      "name" : null,
+      "headline" : "SEMANTiCS 2017: what happens when Artificial Intelligence meets SEO",
+      "description" : "The vision of organizing content and creating - out of millions of web pages - a Giant Global Graph was groundbreaking. When Web inventor Sir Tim Berners-Lee’s blogged about it back in 2007 it was clear that something was happening. Giant Global Graph (GGG) really was a definition that he introduced to clarify how a web of...",
+      "url" : "https://wordlift.io/blog/en/semantics-2017-happens-ai-meets-semantic-seo/",
+      "types" : [ "http://schema.org/Article" ],
+      "mentions" : [ "http://data.wordlift.io/wl0216/entity/giant_global_graph", "http://data.wordlift.io/wl0216/entity/tim_berners-lee", "http://data.wordlift.io/wl0216/entity/wordlift", "http://data.wordlift.io/wl0216/entity/what_does_content_findability_mean_", "http://data.wordlift.io/wl0216/entity/uniform_resource_identifier" ],
+      "matchScore" : 0.4328855276107788
+    }, {
+      "id" : "http://data.wordlift.io/wl0216/entity/zapier",
+      "label" : null,
+      "name" : "Zapier",
+      "headline" : null,
+      "description" : "software company based in California",
+      "url" : "https://wordlift.io/blog/en/entity/zapier/",
+      "types" : [ "http://schema.org/CreativeWork" ],
+      "mentions" : [ ],
+      "matchScore" : 0.4321703612804413
+    } ]
+  }
+}

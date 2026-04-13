@@ -1,55 +1,43 @@
-# 🧠 WordLift Knowledge Graph Expert — RLM-on-KG (v15)
+# 🧠 WordLift Knowledge Graph Expert — RLM-on-KG (v16)
 
-An AI Edge Skill implementing the **Recursive Language Model on Knowledge Graph (RLM-on-KG)** protocol for entity-first, multi-hop exploration over the WordLift Knowledge Graph.
-
-> *"Let the LLM explore but let the vectors decide."* — RLM-on-KG Paper
-
----
+An AI Edge Skill implementing the **Recursive Language Model on Knowledge Graph (RLM-on-KG)** protocol, optimized for **edge devices** with limited 128K context windows (e.g., Gemma 4B).
 
 ## 🚀 Key Features
 
+### ⚡️ Context Optimization (v16)
+To handle the limited 128K context window on mobile devices, v16 introduces **LLM-specific pruning**:
+- **UI Full, LLM Lean**: The runner script saves 100% of the raw GraphQL data to `localStorage` for the **Webview**, but returns a **distilled snippet** to the model's context.
+- **Snippet Distillation**: Descriptions are truncated to 200 chars and co-mention arrays (`schema:mentions`) are squashed into simple counts to prevent token saturation.
+- **Identity Merging**: `Headline`, `Name`, and `Label` are normalized into a single `name` field in the model's view, reducing redundant JSON keys.
+
 ### Entity-First 3-Phase Protocol
 Aligned with the [RLM-on-KG paper](https://github.com/wordlift/rlm-on-kg):
-1. **Discovery** — Broad search returning entities and articles with their types and co-mentions
-2. **Neighborhood Expansion** — Follow `schema:mentions` links to discover co-mentioned entities (equivalent to `expand_neighbors`)
-3. **Evidence Synthesis** — Grounded answers backed by graph-traversal evidence
+1. **Discovery** — Broad search returning lean snippets of entities and articles.
+2. **Selective Deep Read** — The model identifies an interesting node and explicitly calls `resource(iri)` to "read" the full, untruncated profile.
+3. **Evidence Synthesis** — Grounded answers backed by graph-traversal evidence.
 
 ### Discovery vs. Ranking Separation
-The core architectural insight: the LLM's value is in **candidate discovery** (finding entities that vector search alone cannot reach), not ranking. Pure vector similarity (`matchScore`) handles ranking.
+The LLM serves as an **Autonomous Navigator** (discovery), while the system handles ranking via vector similarity (`matchScore`). This allows the model to focus on exploring the graph for "scattered evidence."
 
-### Selective Escalation
-Automatic controller selection based on question complexity:
-- **Quick Search** (1 API call) — for single-entity lookups
-- **RLM 3-Phase** (3-5 calls) — for multi-entity relationships
-- **RLM Deep** (5-8 calls) — for scattered evidence requiring multi-hop traversal
-
-### Smart Identity Merging
-UI intelligently prioritizes: **Headline** > **Name** > **Label** for entity display.
-
-### Type Badges & Co-Mention Map
-Color-coded type badges (Person, Organization, Article, etc.) and a **Mentions** column showing co-mentioned entities as clickable pills.
+### Smart Webview UI
+- **Type Badges**: Color-coded badges for Person, Organization, Article, etc.
+- **Co-Mention Map**: A dedicated **Mentions** column showing co-mentioned entities as pills.
+- **Executive Summary**: Renders grounded findings directly from the model's `[SUMMARY]` tag.
 
 ---
 
-## 🛠 Installation
+## 🛠 Usage & Escalation
 
-1. Import the skill in your AI Agent environment using this repository URL
-2. Enter your **WordLift API Key** when prompted
-3. Ensure you are running **v15** for the RLM-on-KG aligned protocol
+- **Quick Search** — Default search for single-entity lookups.
+- **RLM Protocol** — Automatically triggered for multi-hop reasoning or relationship discovery.
+- **Deep Reads** — Use Phase 2 (`resource(iri)`) to bypass snippet truncation when full context is needed for synthesis.
 
 ---
 
 ## ⚙️ Technical Stack
-- **Core**: HTML5 + Vanilla JavaScript
-- **Data**: WordLift GraphQL API (`schema:mentions` for co-mention expansion, `schema:sameAs` for cross-KG links)
-- **Transport**: LocalStorage payload (zero-URL strategy)
-- **Protocol**: RLM-on-KG Entity-First Exploration (3-phase)
-
----
-
-## 📖 Reference
-- [RLM-on-KG Paper](https://github.com/wordlift/rlm-on-kg) — *Heuristics First, LLMs When Needed*
-- [WordLift](https://wordlift.io) — AI-powered SEO and Knowledge Graph platform
+- **Core**: HTML5 + Vanilla JS
+- **Data**: WordLift GraphQL API (`schema:mentions` for co-mention expansion)
+- **Token Control**: Distilled snippets for Gemma 4B / 128K window compatibility.
 
 ---
 *Built with ❤️ for WordLift AI Explorers.*
