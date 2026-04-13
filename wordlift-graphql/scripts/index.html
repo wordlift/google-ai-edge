@@ -4,12 +4,12 @@
 <body>
     <script>
         /**
-         * AI Edge Gallery - WordLift GraphQL Logic Runner (v14)
-         * Entity-First Discovery: broad search, no constraints, types exposed.
+         * AI Edge Gallery - WordLift GraphQL Logic Runner (v15)
+         * RLM-on-KG aligned: Entity-first discovery with schema:mentions for co-mention expansion.
          */
         async function ai_edge_gallery_get_result(data, secret) {
             try {
-                console.log("Runner v14. Data length:", data?.length);
+                console.log("Runner v15 (RLM-on-KG). Data length:", data?.length);
 
                 const queryMatch = data.match(/\[QUERY\](.*?)\[\/QUERY\]/s);
                 const questionMatch = data.match(/\[QUESTION\](.*?)\[\/QUESTION\]/s);
@@ -19,10 +19,10 @@
 
                 if (!data.includes("[QUERY]")) {
                     question = data.trim();
-                    // v14: Entity-First Discovery — broad, unconstrained search.
-                    // Returns 20 results with types so the model can distinguish
-                    // Person vs Article vs Organization before drilling down.
-                    query = `query { entitySearch(query: { search: { string: "${question.replace(/"/g, '\\"')}" } }, page:0, rows:20) { id: iri label: string(name: "rdfs:label") name: string(name: "schema:name") headline: string(name: "schema:headline") description: string(name: "schema:description") url: string(name: "schema:url") types: refs(name: "rdf:type") matchScore: float(name: "_:score") } }`;
+                    // v15: Entity-first discovery with co-mention expansion field.
+                    // Includes schema:mentions so the model can discover co-mentioned entities
+                    // (equivalent to expand_neighbors in the RLM-on-KG paper).
+                    query = `query { entitySearch(query: { search: { string: "${question.replace(/"/g, '\\"')}" } }, page:0, rows:20) { id: iri label: string(name: "rdfs:label") name: string(name: "schema:name") headline: string(name: "schema:headline") description: string(name: "schema:description") url: string(name: "schema:url") types: refs(name: "rdf:type") mentions: refs(name: "schema:mentions") matchScore: float(name: "_:score") } }`;
                 } else {
                     query = queryMatch ? queryMatch[1].trim() : null;
                     question = questionMatch ? questionMatch[1].trim() : "WordLift Query";
@@ -67,7 +67,7 @@
                 return JSON.stringify({
                     result: `DATA_FOUND: ${llmSnippet}`,
                     webview: {
-                        url: `../assets/webview.html?v=14`,
+                        url: `../assets/webview.html?v=15`,
                         aspectRatio: 1.2
                     }
                 });
@@ -78,7 +78,7 @@
         }
 
         window.ai_edge_gallery_get_result = ai_edge_gallery_get_result;
-        console.log("WordLift Runner v14 Loaded.");
+        console.log("WordLift Runner v15 (RLM-on-KG) Loaded.");
     </script>
 </body>
 </html>

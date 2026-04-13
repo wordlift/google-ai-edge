@@ -1,79 +1,96 @@
-# WordLift GraphQL — Full Query Reference
+# WordLift GraphQL — Validated Query Patterns (RLM-on-KG)
 
-This reference contains validated query patterns for the WordLift GraphQL API, optimized for CreativeWorks (Articles) and Entities (People, Orgs, Places).
-
----
-
-## 🏗 THE ROBUST IDENTITY BLOCK
-For the best UI experience, always include these fields in your selection sets:
-```graphql
-id: iri
-label: string(name: "rdfs:label")
-name: string(name: "schema:name")
-headline: string(name: "schema:headline")
-url: string(name: "schema:url")
-mainEntityOfPage: string(name: "schema:mainEntityOfPage")
-```
+All patterns below have been tested against the live WordLift GraphQL API.
 
 ---
 
-## 🧠 RLM-on-KG Patterns (Multi-hop)
+## Phase 1: Entity Discovery (entitySearch)
 
-### 1. Discovery (Turn 1)
-Find entities connected to a topic.
+Broad search returning entities AND articles with types and co-mentions.
+
 ```graphql
 query {
-  entitySearch(query: { search: { string: "Andrea Volpini" } }, page: 0, rows: 3) {
+  entitySearch(query: { search: { string: "Andrea Volpini" } }, page: 0, rows: 20) {
     id: iri
     label: string(name: "rdfs:label")
     name: string(name: "schema:name")
     headline: string(name: "schema:headline")
-    url: string(name: "schema:url")
-    # Get IRIs of related entities (leaf nodes)
-    related: refs(name: "schema:about")
-  }
-}
-```
-
-### 2. Deep reasoning / Pivot & Expand (Turn 2)
-Fetch full details for one or more related IRIs discovered in Turn 1.
-```graphql
-query {
-  resource(iri: "http://data.wordlift.io/wl0216/entity/andrea-volpini") {
-    id: iri
-    label: string(name: "rdfs:label")
     description: string(name: "schema:description")
-    url: string(name: "schema:url")
-    # Discover secondary connections
-    related: refs(name: "schema:about")
-  }
-}
-```
-
----
-
-## ⚡️ Quick Search & Discovery
-
-### 3. General Discovery Pattern
-```graphql
-query {
-  entitySearch(query: { search: { string: "AI strategy" } }, page: 0, rows: 10) {
-    id: iri
-    label: string(name: "rdfs:label")
-    name: string(name: "schema:name")
-    headline: string(name: "schema:headline")
-    url: string(name: "schema:url")
-    mainEntityOfPage: string(name: "schema:mainEntityOfPage")
+    types: refs(name: "rdf:type")
+    mentions: refs(name: "schema:mentions")
     matchScore: float(name: "_:score")
   }
 }
 ```
 
+**IRI patterns:**
+- `/entity/` → core entity (Person, Organization, Place, CreativeWork)
+- `/post/` → article/blog post
+
 ---
 
-## ⚙️ Data Analysis Rules
+## Phase 2a: Expand Neighbors (via schema:mentions)
 
-### 4. Key Lessons
-- **REFS ARE LEAVES**: The `refs(name: "...")` field returns a list of IRI strings. You **cannot** use a sub-selection `{ id label }` on it. Doing so will trigger a `SubSelectionNotAllowed` error.
-- **IDENTITY MERGE**: The UI merges `label`, `name`, and `headline` into a single **Entity** column.
-- **LINKING**: Always map `iri` to `id` for automatic table linking.
+Given an article IRI, discover which entities it mentions. This is the
+equivalent of `expand_neighbors` in the RLM-on-KG paper.
+
+```graphql
+query {
+  resource(iri: "http://data.wordlift.io/wl0216/post/unraveling-the-mystery-of-the-voynich-manuscript-28093") {
+    id: iri
+    headline: string(name: "schema:headline")
+    description: string(name: "schema:description")
+    mentions: refs(name: "schema:mentions")
+  }
+}
+```
+
+**Returns** (example): `["umberto_eco", "artificial_intelligence", "knowledge_graph", "llm-25790"]`
+
+---
+
+## Phase 2b: Read Entity Profile
+
+Fetch the full profile of a specific entity IRI discovered via mentions.
+
+```graphql
+query {
+  resource(iri: "http://data.wordlift.io/wl0216/entity/wordlift") {
+    id: iri
+    name: string(name: "schema:name")
+    description: string(name: "schema:description")
+    types: refs(name: "rdf:type")
+    sameAs: refs(name: "schema:sameAs")
+    url: string(name: "schema:url")
+  }
+}
+```
+
+---
+
+## Phase 2c: Search for Co-Mentioned Entities
+
+Once you have entity IRIs from mentions, search for content that references them.
+
+```graphql
+query {
+  entitySearch(query: { search: { string: "knowledge graph" } }, page: 0, rows: 10) {
+    id: iri
+    headline: string(name: "schema:headline")
+    description: string(name: "schema:description")
+    types: refs(name: "rdf:type")
+    mentions: refs(name: "schema:mentions")
+  }
+}
+```
+
+---
+
+## Technical Rules
+
+1. **`refs(...)` are LEAF NODES** — they return IRI strings. NO sub-selections `{ id label }`.
+2. **`schema:mentions`** = article → entities it references (co-mention graph).
+3. **`schema:about`** = typed "about" relations (often empty, less useful for expansion).
+4. **`schema:sameAs`** = cross-KG links (Wikidata, DBpedia, Google KG).
+5. **Identity merge**: UI combines `headline > name > label` into one "Entity" column.
+6. **Always map `iri` to `id`** for automatic table linking.
